@@ -3,26 +3,41 @@ import SwiftUI
 #if !os(watchOS)
 struct SettingsView: View {
     @EnvironmentObject private var store: BatteryDashboardStore
+    @Environment(\.appLanguage) private var language
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(AppLanguage.storageKey) private var languagePreference = AppLanguage.system.rawValue
     @State private var draftName = ""
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("Este dispositivo") {
-                    TextField("Nombre", text: $draftName)
-                    Text("El nombre se guarda localmente y se publica únicamente en tu base privada de CloudKit.")
+                Section(language.text(.languageSection)) {
+                    Picker(language.text(.language), selection: $languagePreference) {
+                        ForEach(AppLanguage.allCases) { option in
+                            Text(option.optionTitle(in: language))
+                                .tag(option.rawValue)
+                        }
+                    }
+
+                    Text(language.text(.languageHelp))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section(language.text(.thisDevice)) {
+                    TextField(language.text(.name), text: $draftName)
+                    Text(language.text(.deviceNameHelp))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("Configuración")
+            .navigationTitle(language.text(.settings))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancelar") { dismiss() }
+                    Button(language.text(.cancel)) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Guardar") {
+                    Button(language.text(.save)) {
                         Task {
                             await store.renameLocalDevice(to: draftName)
                             dismiss()

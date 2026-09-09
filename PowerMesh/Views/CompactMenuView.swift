@@ -3,6 +3,7 @@ import SwiftUI
 #if os(macOS)
 struct CompactMenuView: View {
     @EnvironmentObject private var store: BatteryDashboardStore
+    @Environment(\.appLanguage) private var language
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -24,7 +25,7 @@ struct CompactMenuView: View {
 
             Divider()
 
-            Button("Actualizar") {
+            Button(language.text(.refresh)) {
                 Task { await store.refreshNow() }
             }
         }

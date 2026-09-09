@@ -4,7 +4,7 @@ import Foundation
 final class BatteryDashboardStore: ObservableObject {
     @Published private(set) var snapshots: [BatterySnapshot] = []
     @Published private(set) var isRefreshing = false
-    @Published var errorMessage: String?
+    @Published var errorDetail: String?
     @Published var localDeviceName: String = DeviceIdentity.name
 
     private let cloud = CloudBatteryStore()
@@ -70,9 +70,9 @@ final class BatteryDashboardStore: ObservableObject {
         do {
             try await cloud.upsert(current)
             lastPublished = current
-            errorMessage = nil
+            errorDetail = nil
         } catch {
-            errorMessage = friendlyMessage(for: error)
+            errorDetail = error.localizedDescription
         }
     }
 
@@ -80,9 +80,9 @@ final class BatteryDashboardStore: ObservableObject {
         do {
             let remote = try await cloud.fetchAll()
             snapshots = remote
-            errorMessage = nil
+            errorDetail = nil
         } catch {
-            errorMessage = friendlyMessage(for: error)
+            errorDetail = error.localizedDescription
         }
     }
 
@@ -93,9 +93,5 @@ final class BatteryDashboardStore: ObservableObject {
             snapshots.append(snapshot)
         }
         snapshots.sort { $0.updatedAt > $1.updatedAt }
-    }
-
-    private func friendlyMessage(for error: Error) -> String {
-        "No se pudo sincronizar con iCloud. Verifica que CloudKit esté habilitado para este target y que el dispositivo tenga una cuenta de iCloud activa. (\(error.localizedDescription))"
     }
 }

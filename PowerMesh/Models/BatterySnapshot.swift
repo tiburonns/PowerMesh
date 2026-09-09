@@ -7,13 +7,13 @@ enum DeviceKind: String, Codable, CaseIterable, Sendable {
     case watch
     case accessory
 
-    var displayName: String {
+    func displayName(in language: AppLanguage) -> String {
         switch self {
         case .iPhone: return "iPhone"
         case .iPad: return "iPad"
         case .mac: return "Mac"
         case .watch: return "Apple Watch"
-        case .accessory: return "Accesorio"
+        case .accessory: return language.text(.accessory)
         }
     }
 
@@ -35,13 +35,13 @@ enum ChargeState: String, Codable, Sendable {
     case externalPower
     case unknown
 
-    var displayName: String {
+    func displayName(in language: AppLanguage) -> String {
         switch self {
-        case .charging: return "Cargando"
-        case .unplugged: return "Con batería"
-        case .full: return "Carga completa"
-        case .externalPower: return "Alimentación externa"
-        case .unknown: return "Estado desconocido"
+        case .charging: return language.text(.charging)
+        case .unplugged: return language.text(.chargeOnBattery)
+        case .full: return language.text(.chargeFull)
+        case .externalPower: return language.text(.chargeExternalPower)
+        case .unknown: return language.text(.chargeUnknown)
         }
     }
 }

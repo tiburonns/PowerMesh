@@ -3,6 +3,8 @@ import SwiftUI
 struct BatteryCard: View {
     let snapshot: BatterySnapshot
 
+    @Environment(\.appLanguage) private var language
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
@@ -14,7 +16,7 @@ struct BatteryCard: View {
                     Text(snapshot.name)
                         .font(.headline)
                         .lineLimit(1)
-                    Text(snapshot.kind.displayName)
+                    Text(snapshot.kind.displayName(in: language))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -24,7 +26,7 @@ struct BatteryCard: View {
                 if snapshot.state == .charging {
                     Image(systemName: "bolt.fill")
                         .foregroundStyle(.secondary)
-                        .accessibilityLabel("Cargando")
+                        .accessibilityLabel(language.text(.charging))
                 }
             }
 
@@ -33,18 +35,18 @@ struct BatteryCard: View {
                     Text("\(level)%")
                         .font(.system(size: 30, weight: .semibold, design: .rounded))
                     Spacer()
-                    Text(snapshot.state.displayName)
+                    Text(snapshot.state.displayName(in: language))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
                 ProgressView(value: Double(level), total: 100)
-                    .accessibilityLabel("Batería")
-                    .accessibilityValue("\(level) por ciento")
+                    .accessibilityLabel(language.text(.battery))
+                    .accessibilityValue("\(level) \(language.text(.percent))")
             } else {
-                Text("Sin batería interna")
+                Text(language.text(.noInternalBattery))
                     .font(.headline)
-                Text(snapshot.state.displayName)
+                Text(snapshot.state.displayName(in: language))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -53,7 +55,7 @@ struct BatteryCard: View {
                 Circle()
                     .frame(width: 7, height: 7)
                     .foregroundStyle(snapshot.isStale ? .secondary : .primary)
-                Text(snapshot.isStale ? "Dato antiguo" : "Actualizado")
+                Text(snapshot.isStale ? language.text(.staleData) : language.text(.updated))
                 Text(snapshot.updatedAt, style: .relative)
             }
             .font(.caption2)

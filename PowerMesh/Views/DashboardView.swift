@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DashboardView: View {
     @EnvironmentObject private var store: BatteryDashboardStore
+    @Environment(\.appLanguage) private var language
     @State private var showingSettings = false
 
     private let columns = [
@@ -12,8 +13,8 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    if let error = store.errorMessage {
-                        Text(error)
+                    if let detail = store.errorDetail {
+                        Text("\(language.text(.syncError)) (\(detail))")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(12)
@@ -31,9 +32,9 @@ struct DashboardView: View {
                         VStack(spacing: 10) {
                             Image(systemName: "battery.0")
                                 .font(.largeTitle)
-                            Text("Sin dispositivos todavía")
+                            Text(language.text(.noDevicesTitle))
                                 .font(.headline)
-                            Text("Instala y abre PowerMesh en tus dispositivos Apple con la misma cuenta de iCloud.")
+                            Text(language.text(.noDevicesMessage))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
@@ -44,7 +45,7 @@ struct DashboardView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Baterías")
+            .navigationTitle(language.text(.batteriesTitle))
             .toolbar {
                 ToolbarItemGroup(placement: .primaryAction) {
                     Button {
@@ -57,7 +58,7 @@ struct DashboardView: View {
                         }
                     }
                     .disabled(store.isRefreshing)
-                    .accessibilityLabel("Actualizar")
+                    .accessibilityLabel(language.text(.refresh))
 
                     #if !os(watchOS)
                     Button {
@@ -65,7 +66,7 @@ struct DashboardView: View {
                     } label: {
                         Image(systemName: "gearshape")
                     }
-                    .accessibilityLabel("Configuración")
+                    .accessibilityLabel(language.text(.settings))
                     #endif
                 }
             }
