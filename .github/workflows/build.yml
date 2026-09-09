@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            scheme: PowerMesh
+            destination: generic/platform=macOS
+          - name: iOS
+            scheme: PowerMesh
+            destination: generic/platform=iOS Simulator
+          - name: watchOS
+            scheme: PowerMeshWatch
+            destination: generic/platform=watchOS Simulator
+    name: ${{ matrix.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ${{ matrix.name }}
+        run: |
+          xcodebuild \
+            -project PowerMesh.xcodeproj \
+            -scheme "${{ matrix.scheme }}" \
+            -configuration Debug \
+            -destination '${{ matrix.destination }}' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
