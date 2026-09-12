@@ -1,16 +1,38 @@
 import CloudKit
 import Foundation
 
+enum CloudBatteryStoreError: LocalizedError {
+    case iCloudUnavailable
+
+    var errorDescription: String? {
+        switch self {
+        case .iCloudUnavailable:
+            return "iCloud no está disponible para PowerMesh en este dispositivo."
+        }
+    }
+}
+
 actor CloudBatteryStore {
     static let recordType = "BatterySnapshot"
 
-    private let database: CKDatabase
+    private var database: CKDatabase?
 
-    init(container: CKContainer = .default()) {
-        database = container.privateCloudDatabase
+    private func privateDatabase() throws -> CKDatabase {
+        if let database = database {
+            return database
+        }
+
+        guard FileManager.default.ubiquityIdentityToken != nil else {
+            throw CloudBatteryStoreError.iCloudUnavailable
+        }
+
+        let createdDatabase = CKContainer.default().privateCloudDatabase
+        database = createdDatabase
+        return createdDatabase
     }
 
     func upsert(_ snapshot: BatterySnapshot) async throws {
+        let database = try privateDatabase()
         let recordID = CKRecord.ID(recordName: "device-\(snapshot.id)")
         let record: CKRecord
 
@@ -37,7 +59,12 @@ actor CloudBatteryStore {
     }
 
     func fetchAll() async throws -> [BatterySnapshot] {
-        let query = CKQuery(recordType: Self.recordType, predicate: NSPredicate(value: true))
+        let database = try privateDatabase()
+        let query = CKQuery(
+            recordType: Self.recordType,
+            predicate: NSPredicate(value: true)
+        )
+
         var snapshots: [BatterySnapshot] = []
         var cursor: CKQueryOperation.Cursor?
 
@@ -61,7 +88,10 @@ actor CloudBatteryStore {
 
             for (_, result) in page.matchResults {
                 guard case let .success(record) = result,
-                      let snapshot = decode(record) else { continue }
+                      let snapshot = decode(record) else {
+                    continue
+                }
+
                 snapshots.append(snapshot)
             }
 
