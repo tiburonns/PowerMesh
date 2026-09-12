@@ -42,15 +42,18 @@ actor CloudBatteryStore {
         var cursor: CKQueryOperation.Cursor?
 
         repeat {
-            let page: (
-                matchResults: [(CKRecord.ID, Result<CKRecord, any Error>)],
-                queryCursor: CKQueryOperation.Cursor?
-            )
+            let page: (matchResults: [CKRecord.ID: Result<CKRecord, Error>], queryCursor: CKQueryOperation.Cursor?)
 
-            if let cursor {
-                page = try await database.records(continuingMatchFrom: cursor, resultsLimit: 100)
+            if let cursor = cursor {
+                page = try await database.records(
+                    continuingMatchFrom: cursor,
+                    resultsLimit: 100
+                )
             } else {
-                page = try await database.records(matching: query, resultsLimit: 100)
+                page = try await database.records(
+                    matching: query,
+                    resultsLimit: 100
+                )
             }
 
             for (_, result) in page.matchResults {
