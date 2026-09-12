@@ -1,6 +1,6 @@
 import Foundation
 
-enum DeviceKind: String, Codable, CaseIterable, Sendable {
+enum DeviceKind: String, Codable, CaseIterable, Hashable, Sendable {
     case iPhone
     case iPad
     case mac
@@ -28,7 +28,7 @@ enum DeviceKind: String, Codable, CaseIterable, Sendable {
     }
 }
 
-enum ChargeState: String, Codable, Sendable {
+enum ChargeState: String, Codable, Hashable, Sendable {
     case charging
     case unplugged
     case full
