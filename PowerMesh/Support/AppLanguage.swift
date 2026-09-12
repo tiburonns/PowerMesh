@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-enum AppLanguage: String, CaseIterable, Identifiable {
+enum AppLanguage: String, CaseIterable, Identifiable, Equatable {
     static let storageKey = "appLanguage"
 
     case system
@@ -49,12 +49,12 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     }
 }
 
-enum ResolvedAppLanguage {
+enum ResolvedAppLanguage: Equatable {
     case english
     case spanish
 }
 
-enum AppText: String {
+enum AppText: String, Hashable {
     case batteriesTitle
     case refresh
     case settings
