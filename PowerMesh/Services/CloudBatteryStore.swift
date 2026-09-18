@@ -67,6 +67,7 @@ actor CloudBatteryStore {
 
         var snapshots: [BatterySnapshot] = []
         var cursor: CKQueryOperation.Cursor?
+        var firstRecordError: Error?
 
         repeat {
             let page: (
@@ -87,16 +88,24 @@ actor CloudBatteryStore {
             }
 
             for (_, result) in page.matchResults {
-                guard case let .success(record) = result,
-                      let snapshot = decode(record) else {
-                    continue
+                switch result {
+                case .success(let record):
+                    if let snapshot = decode(record) {
+                        snapshots.append(snapshot)
+                    }
+                case .failure(let error):
+                    if firstRecordError == nil {
+                        firstRecordError = error
+                    }
                 }
-
-                snapshots.append(snapshot)
             }
 
             cursor = page.queryCursor
         } while cursor != nil
+
+        if let firstRecordError {
+            throw firstRecordError
+        }
 
         return snapshots.sorted { $0.updatedAt > $1.updatedAt }
     }
