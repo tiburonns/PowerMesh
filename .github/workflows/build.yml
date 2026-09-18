@@ -24,8 +24,12 @@ jobs:
     name: ${{ matrix.name }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-      - name: Validate privacy manifest
-        run: plutil -lint PowerMesh/PrivacyInfo.xcprivacy
+      - name: Validate release, CloudKit, and privacy contract
+        run: |
+          plutil -lint PowerMesh/PrivacyInfo.xcprivacy
+          plutil -lint PowerMesh/PowerMesh.entitlements
+          plutil -lint PowerMesh/PowerMeshWatch.entitlements
+          python3 Tests/validate-release-contract.py
       - name: Run core tests
         if: matrix.name == 'macOS'
         run: zsh Tests/run-core-tests.sh
