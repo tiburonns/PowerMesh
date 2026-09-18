@@ -58,6 +58,16 @@ actor CloudBatteryStore {
         _ = try await database.save(record)
     }
 
+    func delete(deviceID: String) async throws {
+        let database = try privateDatabase()
+        let recordID = CKRecord.ID(recordName: "device-\(deviceID)")
+        do {
+            _ = try await database.deleteRecord(withID: recordID)
+        } catch let error as CKError where error.code == .unknownItem {
+            return
+        }
+    }
+
     func fetchAll() async throws -> [BatterySnapshot] {
         let database = try privateDatabase()
         let query = CKQuery(
