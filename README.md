@@ -83,7 +83,7 @@ Fields:
 - `updatedAt`: Date/Time
 - `source`: String
 
-Each installation owns a stable `device-<UUID>` record in the user's private CloudKit database.
+Each device uses a stable UUID stored in Keychain and publishes a `device-<UUID>` record in the user's private CloudKit database. Existing UserDefaults IDs migrate automatically.
 
 ## Language policy
 
@@ -114,7 +114,8 @@ PowerMesh/
 ├── Support/
 ├── Views/
 ├── PowerMesh.entitlements
-└── PowerMeshWatch.entitlements
+├── PowerMeshWatch.entitlements
+└── PrivacyInfo.xcprivacy
 script/
 └── build_and_run.sh
 docs/
@@ -221,7 +222,7 @@ Campos:
 - `updatedAt`: Date/Time
 - `source`: String
 
-Cada instalación posee un registro estable `device-<UUID>` en la base privada de CloudKit del usuario.
+Cada dispositivo usa un UUID estable guardado en Keychain y publica un registro `device-<UUID>` en la base privada de CloudKit del usuario. Los IDs existentes de UserDefaults se migran automáticamente.
 
 ## Política de idiomas
 
