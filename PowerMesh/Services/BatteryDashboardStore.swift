@@ -56,6 +56,18 @@ final class BatteryDashboardStore: ObservableObject {
         await loadRemote()
     }
 
+    func forgetDevice(id: String) async {
+        guard id != DeviceIdentity.id else { return }
+
+        do {
+            try await cloud.delete(deviceID: id)
+            snapshots.removeAll { $0.id == id }
+            errorDetail = nil
+        } catch {
+            errorDetail = error.localizedDescription
+        }
+    }
+
     private var shouldRefreshRemote: Bool {
         guard let lastRemoteRefresh else { return true }
         return Date().timeIntervalSince(lastRemoteRefresh) >= remoteRefreshInterval
