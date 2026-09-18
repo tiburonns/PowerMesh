@@ -6,6 +6,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 project = (ROOT / "PowerMesh.xcodeproj/project.pbxproj").read_text(encoding="utf-8")
 readme = (ROOT / "README.md").read_text(encoding="utf-8")
+testing_en = (ROOT / "docs/TESTING.md").read_text(encoding="utf-8")
+testing_es = (ROOT / "docs/TESTING.es.md").read_text(encoding="utf-8")
 
 versions = set(re.findall(r"MARKETING_VERSION = ([0-9.]+);", project))
 builds = set(re.findall(r"CURRENT_PROJECT_VERSION = ([0-9]+);", project))
@@ -19,6 +21,11 @@ if f"**Current `main`: {version} (build {build}).**" not in readme:
     raise SystemExit("version contract failed: English README status is stale")
 if f"**`main` actual: {version} (build {build}).**" not in readme:
     raise SystemExit("version contract failed: Spanish README status is stale")
+
+if not testing_en.startswith(f"# PowerMesh {version} "):
+    raise SystemExit("version contract failed: English physical test plan is stale")
+if not testing_es.startswith(f"# PowerMesh {version} "):
+    raise SystemExit("version contract failed: Spanish physical test plan is stale")
 
 if "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMesh.entitlements;" not in project:
     raise SystemExit("CloudKit contract failed: main target entitlements are not wired")
