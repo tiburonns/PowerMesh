@@ -64,6 +64,9 @@ enum AppText: String, Hashable {
     case thisDevice
     case name
     case deviceNameHelp
+    case knownDevices
+    case knownDevicesHelp
+    case forgetDevice
     case languageSection
     case language
     case languageHelp
@@ -97,6 +100,9 @@ enum AppText: String, Hashable {
         .thisDevice: "This device",
         .name: "Name",
         .deviceNameHelp: "The name is stored locally and published only to your private CloudKit database.",
+        .knownDevices: "Known devices",
+        .knownDevicesHelp: "Remove obsolete snapshots that should no longer appear in your private PowerMesh dashboard.",
+        .forgetDevice: "Forget",
         .languageSection: "Language",
         .language: "App language",
         .languageHelp: "Choose System to follow the device language. PowerMesh currently supports English and Spanish; unsupported system languages fall back to English.",
@@ -126,6 +132,9 @@ enum AppText: String, Hashable {
         .thisDevice: "Este dispositivo",
         .name: "Nombre",
         .deviceNameHelp: "El nombre se guarda localmente y se publica únicamente en tu base privada de CloudKit.",
+        .knownDevices: "Dispositivos conocidos",
+        .knownDevicesHelp: "Elimina snapshots obsoletos que ya no deban aparecer en tu dashboard privado de PowerMesh.",
+        .forgetDevice: "Olvidar",
         .languageSection: "Idioma",
         .language: "Idioma de la app",
         .languageHelp: "Elige Sistema para seguir el idioma del dispositivo. PowerMesh admite actualmente inglés y español; otros idiomas del sistema usan inglés como alternativa.",
