@@ -56,6 +56,43 @@ struct BatterySnapshot: Identifiable, Codable, Hashable, Sendable {
     var source: String
 
     var isStale: Bool {
-        Date().timeIntervalSince(updatedAt) > 30 * 60
+        isStale(at: .now)
+    }
+
+    func isStale(
+        at now: Date,
+        threshold: TimeInterval = 30 * 60
+    ) -> Bool {
+        now.timeIntervalSince(updatedAt) > threshold
+    }
+}
+
+enum BatterySnapshotReconciler {
+    static func merge(
+        remote: [BatterySnapshot],
+        local: BatterySnapshot?
+    ) -> [BatterySnapshot] {
+        var byID: [String: BatterySnapshot] = [:]
+
+        for snapshot in remote {
+            if let existing = byID[snapshot.id] {
+                if snapshot.updatedAt > existing.updatedAt {
+                    byID[snapshot.id] = snapshot
+                }
+            } else {
+                byID[snapshot.id] = snapshot
+            }
+        }
+
+        if let local {
+            byID[local.id] = local
+        }
+
+        return byID.values.sorted { lhs, rhs in
+            if lhs.updatedAt == rhs.updatedAt {
+                return lhs.id < rhs.id
+            }
+            return lhs.updatedAt > rhs.updatedAt
+        }
     }
 }
