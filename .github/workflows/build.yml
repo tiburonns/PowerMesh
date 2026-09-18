@@ -23,7 +23,12 @@ jobs:
             destination: generic/platform=watchOS Simulator
     name: ${{ matrix.name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Validate privacy manifest
+        run: plutil -lint PowerMesh/PrivacyInfo.xcprivacy
+      - name: Run core tests
+        if: matrix.name == 'macOS'
+        run: zsh Tests/run-core-tests.sh
       - name: Build ${{ matrix.name }}
         run: |
           xcodebuild \
