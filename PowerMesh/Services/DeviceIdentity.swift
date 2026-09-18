@@ -1,20 +1,30 @@
 import Foundation
+import Security
 
 #if os(iOS)
 import UIKit
 #endif
 
 struct DeviceIdentity {
-    private static let idKey = "powermesh.device.id"
+    private static let legacyIDKey = "powermesh.device.id"
     private static let nameKey = "powermesh.device.name"
+    private static let keychainService = "com.tiburonns.PowerMesh.device"
+    private static let keychainAccount = "stable-device-id"
 
     static var id: String {
-        if let existing = UserDefaults.standard.string(forKey: idKey), !existing.isEmpty {
+        if let existing = loadStableID(), !existing.isEmpty {
             return existing
         }
 
+        if let legacy = UserDefaults.standard.string(forKey: legacyIDKey),
+           !legacy.isEmpty {
+            saveStableID(legacy)
+            UserDefaults.standard.removeObject(forKey: legacyIDKey)
+            return legacy
+        }
+
         let newID = UUID().uuidString
-        UserDefaults.standard.set(newID, forKey: idKey)
+        saveStableID(newID)
         return newID
     }
 
@@ -45,5 +55,45 @@ struct DeviceIdentity {
         #else
         return "Dispositivo Apple"
         #endif
+    }
+
+    private static func loadStableID() -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var item: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess,
+              let data = item as? Data,
+              let value = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+        return value
+    }
+
+    private static func saveStableID(_ value: String) {
+        guard let data = value.data(using: .utf8) else { return }
+
+        let lookup: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount
+        ]
+
+        let update: [String: Any] = [
+            kSecValueData as String: data
+        ]
+
+        let status = SecItemUpdate(lookup as CFDictionary, update as CFDictionary)
+        if status == errSecItemNotFound {
+            var create = lookup
+            create[kSecValueData as String] = data
+            create[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            _ = SecItemAdd(create as CFDictionary, nil)
+        }
     }
 }
