@@ -10,8 +10,12 @@ final class BatteryDashboardStore: ObservableObject {
 
     private let cloud = CloudBatteryStore()
     private let batteryReader = LocalBatteryReader()
+    private let remoteRefreshInterval: TimeInterval = 5 * 60
+
     private var reportingTask: Task<Void, Never>?
     private var lastPublished: BatterySnapshot?
+    private var localSnapshot: BatterySnapshot?
+    private var lastRemoteRefresh: Date?
 
     func start() {
         guard reportingTask == nil else { return }
@@ -21,13 +25,16 @@ final class BatteryDashboardStore: ObservableObject {
             await self.refreshNow(forceUpload: true)
 
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(60))
+                do {
+                    try await Task.sleep(for: .seconds(60))
+                } catch {
+                    break
+                }
                 guard !Task.isCancelled else { break }
 
                 await self.reportLocalIfNeeded(force: false)
 
-                // Pull remote data less aggressively than local battery checks.
-                if Int(Date().timeIntervalSince1970) % (5 * 60) < 60 {
+                if self.shouldRefreshRemote {
                     await self.loadRemote()
                 }
             }
@@ -49,8 +56,14 @@ final class BatteryDashboardStore: ObservableObject {
         await loadRemote()
     }
 
+    private var shouldRefreshRemote: Bool {
+        guard let lastRemoteRefresh else { return true }
+        return Date().timeIntervalSince(lastRemoteRefresh) >= remoteRefreshInterval
+    }
+
     private func reportLocalIfNeeded(force: Bool) async {
         let current = batteryReader.read()
+        localSnapshot = current
         merge(current)
 
         let shouldPublish: Bool
@@ -80,9 +93,25 @@ final class BatteryDashboardStore: ObservableObject {
     private func loadRemote() async {
         do {
             let remote = try await cloud.fetchAll()
-            snapshots = remote
+            var reconciled = Dictionary(
+                uniqueKeysWithValues: remote.map { ($0.id, $0) }
+            )
+
+            // The device currently running PowerMesh is authoritative for its
+            // own battery state. CloudKit may lag immediately after an upload.
+            if let localSnapshot {
+                reconciled[localSnapshot.id] = localSnapshot
+            }
+
+            snapshots = reconciled.values.sorted { $0.updatedAt > $1.updatedAt }
+            lastRemoteRefresh = .now
             errorDetail = nil
         } catch {
+            // Keep the last good dashboard and the current local reading rather
+            // than replacing everything with an incomplete/failed cloud fetch.
+            if let localSnapshot {
+                merge(localSnapshot)
+            }
             errorDetail = error.localizedDescription
         }
     }
