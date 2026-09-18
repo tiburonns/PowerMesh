@@ -57,7 +57,7 @@ This helper builds without code signing, so CloudKit is not expected to work in 
 
 For complete setup, signing, CloudKit, Watch, and physical-device instructions, read:
 
-**`docs/GETTING_STARTED.md`**
+**`docs/GETTING_STARTED.md`** y la puerta de release en dispositivos firmados de **`docs/TESTING.es.md`** and the signed-device release gate in **`docs/TESTING.md`**
 
 ## Real cross-device synchronization
 
@@ -126,7 +126,9 @@ script/
 docs/
 ├── ARCHITECTURE.md
 ├── GETTING_STARTED.md
-└── LOCALIZATION.md
+├── LOCALIZATION.md
+├── TESTING.md
+└── TESTING.es.md
 .github/workflows/
 └── build.yml
 ```
@@ -271,7 +273,9 @@ script/
 docs/
 ├── ARCHITECTURE.md
 ├── GETTING_STARTED.md
-└── LOCALIZATION.md
+├── LOCALIZATION.md
+├── TESTING.md
+└── TESTING.es.md
 .github/workflows/
 └── build.yml
 ```
