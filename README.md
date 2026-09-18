@@ -10,6 +10,8 @@ PowerMesh is a multilingual SwiftUI app that aims to show the battery status of 
 
 ## Current status
 
+> **Current `main`: 0.1.4 (build 5).** This is an active development build; physical CloudKit validation is still part of the acceptance process.
+
 PowerMesh now ships as a **real clonable Xcode project**.
 
 ```bash
@@ -153,6 +155,8 @@ PowerMesh does not intentionally store Apple IDs, IMEI values, serial numbers, o
 # Español
 
 ## Estado actual
+
+> **`main` actual: 0.1.4 (build 5).** Es una compilación activa de desarrollo; la validación física de CloudKit sigue formando parte del proceso de aceptación.
 
 PowerMesh ahora se entrega como un **proyecto real de Xcode que puedes clonar**.
 
