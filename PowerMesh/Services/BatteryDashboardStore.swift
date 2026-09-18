@@ -105,17 +105,13 @@ final class BatteryDashboardStore: ObservableObject {
     private func loadRemote() async {
         do {
             let remote = try await cloud.fetchAll()
-            var reconciled = Dictionary(
-                uniqueKeysWithValues: remote.map { ($0.id, $0) }
-            )
 
             // The device currently running PowerMesh is authoritative for its
             // own battery state. CloudKit may lag immediately after an upload.
-            if let localSnapshot {
-                reconciled[localSnapshot.id] = localSnapshot
-            }
-
-            snapshots = reconciled.values.sorted { $0.updatedAt > $1.updatedAt }
+            snapshots = BatterySnapshotReconciler.merge(
+                remote: remote,
+                local: localSnapshot
+            )
             lastRemoteRefresh = .now
             errorDetail = nil
         } catch {
