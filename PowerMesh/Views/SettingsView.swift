@@ -30,6 +30,34 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+
+                let remoteDevices = store.snapshots.filter { $0.id != DeviceIdentity.id }
+                if !remoteDevices.isEmpty {
+                    Section(language.text(.knownDevices)) {
+                        ForEach(remoteDevices) { snapshot in
+                            HStack {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(snapshot.name)
+                                    Text(snapshot.updatedAt, style: .relative)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                Spacer()
+
+                                Button(language.text(.forgetDevice), role: .destructive) {
+                                    Task {
+                                        await store.forgetDevice(id: snapshot.id)
+                                    }
+                                }
+                            }
+                        }
+
+                        Text(language.text(.knownDevicesHelp))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
             .navigationTitle(language.text(.settings))
             .toolbar {
