@@ -58,12 +58,12 @@ For complete setup, signing, CloudKit, Watch, and physical-device instructions, 
 
 To make iPhone, iPad, Mac, and Apple Watch publish to the same battery dashboard, configure both targets with the same Apple Developer team and the same private CloudKit container.
 
-The repository includes entitlement templates:
+The repository includes the entitlement files used by the targets:
 
 - `PowerMesh/PowerMesh.entitlements`
 - `PowerMesh/PowerMeshWatch.entitlements`
 
-Default planned container:
+Configured container:
 
 `iCloud.com.tiburonns.PowerMesh`
 
@@ -196,12 +196,12 @@ Para la configuración completa de firma, CloudKit, Watch y dispositivos físico
 
 Para que iPhone, iPad, Mac y Apple Watch publiquen en el mismo dashboard de batería, configura ambos targets con el mismo equipo de Apple Developer y el mismo contenedor privado de CloudKit.
 
-El repositorio incluye plantillas de entitlements:
+El repositorio incluye los archivos de entitlements utilizados por los targets:
 
 - `PowerMesh/PowerMesh.entitlements`
 - `PowerMesh/PowerMeshWatch.entitlements`
 
-Contenedor previsto por defecto:
+Contenedor configurado:
 
 `iCloud.com.tiburonns.PowerMesh`
 
