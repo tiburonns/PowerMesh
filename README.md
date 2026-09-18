@@ -67,7 +67,7 @@ Default planned container:
 
 `iCloud.com.tiburonns.PowerMesh`
 
-The Xcode project intentionally does **not** force those entitlements in the default unsigned smoke-test configuration, so cloning the project is not immediately blocked by signing/provisioning.
+The Xcode project wires these entitlements into the main and Watch targets. Unsigned smoke-test builds can still compile with `CODE_SIGNING_ALLOWED=NO`, but CloudKit synchronization requires valid signing/provisioning and the configured iCloud container on physical devices.
 
 ## CloudKit record
 
@@ -205,7 +205,7 @@ Contenedor previsto por defecto:
 
 `iCloud.com.tiburonns.PowerMesh`
 
-El proyecto Xcode **no fuerza** esos entitlements durante la prueba inicial sin firma. Esto evita que un clon quede bloqueado inmediatamente por certificados o provisioning.
+El proyecto Xcode conecta estos entitlements a los targets principal y de Watch. Las pruebas de compilación sin firma pueden seguir usando `CODE_SIGNING_ALLOWED=NO`, pero la sincronización de CloudKit requiere firma/provisioning válidos y el contenedor de iCloud configurado en dispositivos físicos.
 
 ## Registro de CloudKit
 
