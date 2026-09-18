@@ -57,7 +57,7 @@ This helper builds without code signing, so CloudKit is not expected to work in 
 
 For complete setup, signing, CloudKit, Watch, and physical-device instructions, read:
 
-**`docs/GETTING_STARTED.md`** y la puerta de release en dispositivos firmados de **`docs/TESTING.es.md`** and the signed-device release gate in **`docs/TESTING.md`**
+**`docs/GETTING_STARTED.md`** and the signed-device release gate in **`docs/TESTING.md`**
 
 ## Real cross-device synchronization
 
@@ -205,7 +205,7 @@ El script compila sin firma, por lo que CloudKit no debe esperarse que funcione 
 
 Para la configuración completa de firma, CloudKit, Watch y dispositivos físicos consulta:
 
-**`docs/GETTING_STARTED.md`**
+**`docs/GETTING_STARTED.md`** y la puerta de release en dispositivos firmados de **`docs/TESTING.es.md`**
 
 ## Sincronización real entre dispositivos
 
