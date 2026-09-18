@@ -18,6 +18,7 @@
 		A10000000000000000000009 /* CompactMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* CompactMenuView.swift */; };
 		A1000000000000000000000A /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* DashboardView.swift */; };
 		A1000000000000000000000B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* SettingsView.swift */; };
+		A1000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* PrivacyInfo.xcprivacy */; };
 		A20000000000000000000001 /* PowerMeshApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* PowerMeshApp.swift */; };
 		A20000000000000000000002 /* BatterySnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* BatterySnapshot.swift */; };
 		A20000000000000000000003 /* BatteryDashboardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* BatteryDashboardStore.swift */; };
@@ -29,6 +30,7 @@
 		A20000000000000000000009 /* CompactMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* CompactMenuView.swift */; };
 		A2000000000000000000000A /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* DashboardView.swift */; };
 		A2000000000000000000000B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* SettingsView.swift */; };
+		A2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +47,7 @@
 		B1000000000000000000000B /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		B1000000000000000000000C /* PowerMesh.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PowerMesh.entitlements; sourceTree = "<group>"; };
 		B1000000000000000000000D /* PowerMeshWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PowerMeshWatch.entitlements; sourceTree = "<group>"; };
+		B1000000000000000000000E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B10000000000000000000010 /* PowerMesh.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PowerMesh.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B10000000000000000000011 /* PowerMeshWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PowerMeshWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -62,7 +65,7 @@
 		};
 		D10000000000000000000001 /* PowerMesh */ = {
 			isa = PBXGroup;
-			children = (D11000000000000000000001 /* App */, D11000000000000000000002 /* Models */, D11000000000000000000003 /* Services */, D11000000000000000000004 /* Support */, D11000000000000000000005 /* Views */, B1000000000000000000000C /* PowerMesh.entitlements */, B1000000000000000000000D /* PowerMeshWatch.entitlements */);
+			children = (D11000000000000000000001 /* App */, D11000000000000000000002 /* Models */, D11000000000000000000003 /* Services */, D11000000000000000000004 /* Support */, D11000000000000000000005 /* Views */, B1000000000000000000000C /* PowerMesh.entitlements */, B1000000000000000000000D /* PowerMeshWatch.entitlements */, B1000000000000000000000E /* PrivacyInfo.xcprivacy */);
 			path = PowerMesh;
 			sourceTree = "<group>";
 		};
@@ -117,8 +120,8 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		C10000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
-		C20000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		C10000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A1000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */); runOnlyForDeploymentPostprocessing = 0; };
+		C20000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
