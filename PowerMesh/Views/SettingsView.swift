@@ -8,6 +8,10 @@ struct SettingsView: View {
     @AppStorage(AppLanguage.storageKey) private var languagePreference = AppLanguage.system.rawValue
     @State private var draftName = ""
 
+    private var remoteDevices: [BatterySnapshot] {
+        store.snapshots.filter { $0.id != DeviceIdentity.id }
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -31,7 +35,6 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                let remoteDevices = store.snapshots.filter { $0.id != DeviceIdentity.id }
                 if !remoteDevices.isEmpty {
                     Section(language.text(.knownDevices)) {
                         ForEach(remoteDevices) { snapshot in
