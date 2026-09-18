@@ -32,6 +32,9 @@ You do not need to create a project or targets manually.
 - Mac battery through IOKit / `IOPowerSources`.
 - Desktop Macs represented as externally powered devices without an internal battery.
 - Private CloudKit snapshot model for cross-device synchronization.
+- Stable per-device identity stored in Keychain, with automatic migration from earlier UserDefaults IDs.
+- Deterministic reconciliation that keeps the current device authoritative while deduplicating remote CloudKit snapshots.
+- Settings cleanup for obsolete remote device snapshots.
 - Shared SwiftUI battery dashboard.
 - macOS menu-bar view.
 - Stale-data indication instead of pretending old snapshots are real-time values.
@@ -126,16 +129,18 @@ docs/
 └── build.yml
 ```
 
-## Roadmap
+## Quality status and roadmap
 
-1. Validate the first Xcode builds on macOS, iOS, and watchOS.
-2. Enable and verify physical-device CloudKit synchronization.
-3. Add CloudKit subscriptions.
-4. Add opportunistic background refresh.
-5. Add WidgetKit for iPhone, iPad, and macOS.
-6. Add an Apple Watch complication.
-7. Add battery history and low-battery alerts.
-8. Add public BLE accessory support where technically available.
+Automated CI now builds macOS, iOS, and watchOS and runs deterministic core tests for snapshot staleness, CloudKit reconciliation rules, and language behavior. Physical-device CloudKit behavior still requires signed-device validation because unsigned CI cannot exercise a user's private iCloud container.
+
+Next priorities:
+
+1. Complete a signed physical-device test matrix for iPhone/iPad ↔ Mac ↔ Apple Watch CloudKit synchronization.
+2. Add CloudKit subscriptions and opportunistic background refresh.
+3. Add WidgetKit for iPhone, iPad, and macOS.
+4. Add an Apple Watch complication.
+5. Add battery history and low-battery alerts.
+6. Add public BLE accessory support where technically available.
 
 ## Privacy
 
@@ -171,6 +176,9 @@ No necesitas crear manualmente el proyecto ni los targets.
 - Batería de Mac mediante IOKit / `IOPowerSources`.
 - Macs de escritorio representadas como dispositivos con alimentación externa y sin batería interna.
 - Modelo de snapshots en CloudKit privado para sincronización entre dispositivos.
+- Identidad estable por dispositivo guardada en Keychain, con migración automática desde IDs anteriores en UserDefaults.
+- Reconciliación determinista que mantiene al dispositivo actual como fuente autoritativa y elimina duplicados remotos de CloudKit.
+- Limpieza desde Ajustes de snapshots obsoletos de dispositivos remotos.
 - Dashboard SwiftUI compartido.
 - Vista de barra de menús en macOS.
 - Indicador de datos antiguos en lugar de presentar snapshots viejos como información en tiempo real.
@@ -264,16 +272,18 @@ docs/
 └── build.yml
 ```
 
-## Próximos pasos
+## Estado de calidad y próximos pasos
 
-1. Validar las primeras compilaciones de Xcode en macOS, iOS y watchOS.
-2. Activar y verificar la sincronización CloudKit en dispositivos físicos.
-3. Agregar suscripciones de CloudKit.
-4. Agregar actualización oportunista en segundo plano.
-5. Agregar WidgetKit para iPhone, iPad y macOS.
-6. Agregar complication para Apple Watch.
-7. Agregar historial de batería y alertas de batería baja.
-8. Agregar soporte para accesorios BLE mediante APIs públicas cuando sea técnicamente posible.
+El CI automatizado ya compila macOS, iOS y watchOS y ejecuta pruebas deterministas de antigüedad de snapshots, reglas de reconciliación de CloudKit e idioma. El comportamiento real de CloudKit todavía requiere validación firmada en dispositivos físicos porque el CI sin firma no puede ejercer el contenedor privado de iCloud de un usuario.
+
+Prioridades siguientes:
+
+1. Completar una matriz de pruebas firmadas en dispositivos físicos para la sincronización iPhone/iPad ↔ Mac ↔ Apple Watch.
+2. Agregar suscripciones de CloudKit y actualización oportunista en segundo plano.
+3. Agregar WidgetKit para iPhone, iPad y macOS.
+4. Agregar complication para Apple Watch.
+5. Agregar historial de batería y alertas de batería baja.
+6. Agregar soporte para accesorios BLE mediante APIs públicas cuando sea técnicamente posible.
 
 ## Privacidad
 
