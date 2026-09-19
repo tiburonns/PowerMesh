@@ -13,8 +13,8 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    if let detail = store.errorDetail {
-                        Text("\(language.text(.syncError)) (\(detail))")
+                    if let issue = store.syncIssue {
+                        Text(issue.message(in: language))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(12)
