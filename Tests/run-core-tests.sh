@@ -9,6 +9,10 @@ trap 'rm -rf "$temp_dir"' EXIT
 xcrun swiftc -parse-as-library \
   "$repo_root/PowerMesh/Support/AppLanguage.swift" \
   "$repo_root/PowerMesh/Models/BatterySnapshot.swift" \
+  "$repo_root/PowerMesh/Services/BatteryDashboardStore.swift" \
+  "$repo_root/PowerMesh/Services/CloudBatteryStore.swift" \
+  "$repo_root/PowerMesh/Services/DeviceIdentity.swift" \
+  "$repo_root/PowerMesh/Services/LocalBatteryReader.swift" \
   "$repo_root/Tests/CoreIntegration.swift" \
   -o "$test_binary"
 
