@@ -18,13 +18,18 @@ struct DeviceIdentity {
 
         if let legacy = UserDefaults.standard.string(forKey: legacyIDKey),
            !legacy.isEmpty {
-            saveStableID(legacy)
-            UserDefaults.standard.removeObject(forKey: legacyIDKey)
+            if saveStableID(legacy) {
+                UserDefaults.standard.removeObject(forKey: legacyIDKey)
+            }
             return legacy
         }
 
         let newID = UUID().uuidString
-        saveStableID(newID)
+        if !saveStableID(newID) {
+            // Keep a durable fallback so a transient Keychain failure does not
+            // generate a different logical device on every launch.
+            UserDefaults.standard.set(newID, forKey: legacyIDKey)
+        }
         return newID
     }
 
@@ -75,8 +80,9 @@ struct DeviceIdentity {
         return value
     }
 
-    private static func saveStableID(_ value: String) {
-        guard let data = value.data(using: .utf8) else { return }
+    @discardableResult
+    private static func saveStableID(_ value: String) -> Bool {
+        guard let data = value.data(using: .utf8) else { return false }
 
         let lookup: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -88,12 +94,35 @@ struct DeviceIdentity {
             kSecValueData as String: data
         ]
 
-        let status = SecItemUpdate(lookup as CFDictionary, update as CFDictionary)
-        if status == errSecItemNotFound {
-            var create = lookup
-            create[kSecValueData as String] = data
-            create[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-            _ = SecItemAdd(create as CFDictionary, nil)
+        let updateStatus = SecItemUpdate(
+            lookup as CFDictionary,
+            update as CFDictionary
+        )
+
+        if updateStatus == errSecSuccess {
+            return true
         }
+
+        guard updateStatus == errSecItemNotFound else {
+            return false
+        }
+
+        var create = lookup
+        create[kSecValueData as String] = data
+        create[kSecAttrAccessible as String] =
+            kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+
+        let addStatus = SecItemAdd(create as CFDictionary, nil)
+        if addStatus == errSecSuccess {
+            return true
+        }
+
+        // A concurrent first access can win the add race. In that case,
+        // accept the item only if it contains the same stable ID.
+        if addStatus == errSecDuplicateItem {
+            return loadStableID() == value
+        }
+
+        return false
     }
 }
