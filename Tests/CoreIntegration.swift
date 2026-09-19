@@ -18,6 +18,7 @@ struct PowerMeshCoreIntegration {
         try testReconciliationPrefersNewestRemoteDuplicate()
         try testLocalSnapshotOverridesCloudCopy()
         try testLanguageFallbacks()
+        try testSyncIssueLocalization()
         print("PASS: PowerMesh staleness, reconciliation, and localization")
     }
 
@@ -119,6 +120,19 @@ struct PowerMeshCoreIntegration {
         let localResult = merged.first { $0.id == "local" }
         try require(localResult?.name == "Current device", "Cloud copy overrode the authoritative local snapshot")
         try require(localResult?.level == 95, "Local battery level was not preserved")
+    }
+
+    private static func testSyncIssueLocalization() throws {
+        try require(
+            DashboardSyncIssue.iCloudUnavailable.message(in: .english)
+                == "iCloud is not available for PowerMesh on this device.",
+            "English iCloud availability message failed"
+        )
+        try require(
+            DashboardSyncIssue.iCloudUnavailable.message(in: .spanish)
+                == "iCloud no está disponible para PowerMesh en este dispositivo.",
+            "Spanish iCloud availability message failed"
+        )
     }
 
     private static func testLanguageFallbacks() throws {
