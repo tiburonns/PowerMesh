@@ -1,11 +1,25 @@
 import Combine
 import Foundation
 
+enum DashboardSyncIssue: Equatable {
+    case iCloudUnavailable
+    case detail(String)
+
+    func message(in language: AppLanguage) -> String {
+        switch self {
+        case .iCloudUnavailable:
+            return language.text(.iCloudUnavailable)
+        case .detail(let detail):
+            return "\(language.text(.syncError)) (\(detail))"
+        }
+    }
+}
+
 @MainActor
 final class BatteryDashboardStore: ObservableObject {
     @Published private(set) var snapshots: [BatterySnapshot] = []
     @Published private(set) var isRefreshing = false
-    @Published var errorDetail: String?
+    @Published private(set) var syncIssue: DashboardSyncIssue?
     @Published var localDeviceName: String = DeviceIdentity.name
 
     private let cloud = CloudBatteryStore()
@@ -42,6 +56,8 @@ final class BatteryDashboardStore: ObservableObject {
     }
 
     func refreshNow(forceUpload: Bool = true) async {
+        guard !isRefreshing else { return }
+
         isRefreshing = true
         defer { isRefreshing = false }
 
@@ -62,9 +78,9 @@ final class BatteryDashboardStore: ObservableObject {
         do {
             try await cloud.delete(deviceID: id)
             snapshots.removeAll { $0.id == id }
-            errorDetail = nil
+            syncIssue = nil
         } catch {
-            errorDetail = error.localizedDescription
+            syncIssue = issue(for: error)
         }
     }
 
@@ -96,9 +112,9 @@ final class BatteryDashboardStore: ObservableObject {
         do {
             try await cloud.upsert(current)
             lastPublished = current
-            errorDetail = nil
+            syncIssue = nil
         } catch {
-            errorDetail = error.localizedDescription
+            syncIssue = issue(for: error)
         }
     }
 
@@ -113,15 +129,23 @@ final class BatteryDashboardStore: ObservableObject {
                 local: localSnapshot
             )
             lastRemoteRefresh = .now
-            errorDetail = nil
+            syncIssue = nil
         } catch {
             // Keep the last good dashboard and the current local reading rather
             // than replacing everything with an incomplete/failed cloud fetch.
             if let localSnapshot {
                 merge(localSnapshot)
             }
-            errorDetail = error.localizedDescription
+            syncIssue = issue(for: error)
         }
+    }
+
+    private func issue(for error: Error) -> DashboardSyncIssue {
+        if let cloudError = error as? CloudBatteryStoreError,
+           cloudError == .iCloudUnavailable {
+            return .iCloudUnavailable
+        }
+        return .detail(error.localizedDescription)
     }
 
     private func merge(_ snapshot: BatterySnapshot) {
