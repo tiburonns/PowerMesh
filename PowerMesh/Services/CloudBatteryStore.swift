@@ -5,7 +5,13 @@ enum CloudBatteryStoreError: Error, Equatable {
     case iCloudUnavailable
 }
 
-actor CloudBatteryStore {
+protocol BatteryCloudStore: Sendable {
+    func upsert(_ snapshot: BatterySnapshot) async throws
+    func delete(deviceID: String) async throws
+    func fetchAll() async throws -> [BatterySnapshot]
+}
+
+actor CloudBatteryStore: BatteryCloudStore {
     static let recordType = "BatterySnapshot"
     static let containerIdentifier = "iCloud.com.tiburonns.PowerMesh"
 
