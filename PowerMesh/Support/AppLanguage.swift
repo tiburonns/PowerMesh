@@ -61,6 +61,7 @@ enum AppText: String, Hashable {
     case noDevicesTitle
     case noDevicesMessage
     case syncError
+    case iCloudUnavailable
     case thisDevice
     case name
     case deviceNameHelp
@@ -97,6 +98,7 @@ enum AppText: String, Hashable {
         .noDevicesTitle: "No devices yet",
         .noDevicesMessage: "Install and open PowerMesh on your Apple devices using the same iCloud account.",
         .syncError: "Could not sync with iCloud. Make sure CloudKit is enabled for this target and the device is signed in to iCloud.",
+        .iCloudUnavailable: "iCloud is not available for PowerMesh on this device.",
         .thisDevice: "This device",
         .name: "Name",
         .deviceNameHelp: "The name is stored locally and published only to your private CloudKit database.",
@@ -129,6 +131,7 @@ enum AppText: String, Hashable {
         .noDevicesTitle: "Sin dispositivos todavía",
         .noDevicesMessage: "Instala y abre PowerMesh en tus dispositivos Apple con la misma cuenta de iCloud.",
         .syncError: "No se pudo sincronizar con iCloud. Verifica que CloudKit esté habilitado para este target y que el dispositivo tenga una cuenta de iCloud activa.",
+        .iCloudUnavailable: "iCloud no está disponible para PowerMesh en este dispositivo.",
         .thisDevice: "Este dispositivo",
         .name: "Nombre",
         .deviceNameHelp: "El nombre se guarda localmente y se publica únicamente en tu base privada de CloudKit.",
