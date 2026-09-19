@@ -9,7 +9,12 @@ import IOKit.ps
 #endif
 
 @MainActor
-struct LocalBatteryReader {
+protocol BatteryReading {
+    func read() -> BatterySnapshot
+}
+
+@MainActor
+struct LocalBatteryReader: BatteryReading {
     init() {
         #if os(iOS)
         UIDevice.current.isBatteryMonitoringEnabled = true
