@@ -1,7 +1,7 @@
 import CloudKit
 import Foundation
 
-enum CloudBatteryStoreError: Error {
+enum CloudBatteryStoreError: Error, Equatable {
     case iCloudUnavailable
 }
 
