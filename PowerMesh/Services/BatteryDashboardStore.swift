@@ -22,14 +22,24 @@ final class BatteryDashboardStore: ObservableObject {
     @Published private(set) var syncIssue: DashboardSyncIssue?
     @Published var localDeviceName: String = DeviceIdentity.name
 
-    private let cloud = CloudBatteryStore()
-    private let batteryReader = LocalBatteryReader()
-    private let remoteRefreshInterval: TimeInterval = 5 * 60
+    private let cloud: any BatteryCloudStore
+    private let batteryReader: any BatteryReading
+    private let remoteRefreshInterval: TimeInterval
 
     private var reportingTask: Task<Void, Never>?
     private var lastPublished: BatterySnapshot?
     private var localSnapshot: BatterySnapshot?
     private var lastRemoteRefresh: Date?
+
+    init(
+        cloud: any BatteryCloudStore = CloudBatteryStore(),
+        batteryReader: any BatteryReading = LocalBatteryReader(),
+        remoteRefreshInterval: TimeInterval = 5 * 60
+    ) {
+        self.cloud = cloud
+        self.batteryReader = batteryReader
+        self.remoteRefreshInterval = remoteRefreshInterval
+    }
 
     func start() {
         guard reportingTask == nil else { return }
