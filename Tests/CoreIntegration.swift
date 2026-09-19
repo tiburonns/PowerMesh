@@ -13,13 +13,15 @@ enum PowerMeshTestFailure: Error, CustomStringConvertible {
 
 @main
 struct PowerMeshCoreIntegration {
-    static func main() throws {
+    static func main() async throws {
         try testStalenessBoundary()
         try testReconciliationPrefersNewestRemoteDuplicate()
         try testLocalSnapshotOverridesCloudCopy()
         try testLanguageFallbacks()
         try testSyncIssueLocalization()
-        print("PASS: PowerMesh staleness, reconciliation, and localization")
+        try await testDashboardStoreUsesInjectedCloudAndKeepsLastGoodState()
+        try await testDashboardStoreMapsICloudUnavailable()
+        print("PASS: PowerMesh staleness, reconciliation, localization, and injected sync failure handling")
     }
 
     private static func require(
@@ -148,5 +150,67 @@ struct PowerMeshCoreIntegration {
             AppLanguage.spanish.optionTitle(in: .english) == "Español",
             "Language picker title changed unexpectedly"
         )
+    }
+}
+
+
+private enum FakeFetchMode: Sendable {
+    case success
+    case failure
+    case iCloudUnavailable
+}
+
+private struct FakeCloudFailure: LocalizedError {
+    var errorDescription: String? {
+        "Synthetic CloudKit fetch failure"
+    }
+}
+
+private actor FakeBatteryCloudStore: BatteryCloudStore {
+    private var records: [BatterySnapshot]
+    private var fetchMode: FakeFetchMode
+
+    init(
+        records: [BatterySnapshot],
+        fetchMode: FakeFetchMode = .success
+    ) {
+        self.records = records
+        self.fetchMode = fetchMode
+    }
+
+    func setFetchMode(_ mode: FakeFetchMode) {
+        fetchMode = mode
+    }
+
+    func upsert(_ snapshot: BatterySnapshot) async throws {
+        if let index = records.firstIndex(where: { $0.id == snapshot.id }) {
+            records[index] = snapshot
+        } else {
+            records.append(snapshot)
+        }
+    }
+
+    func delete(deviceID: String) async throws {
+        records.removeAll { $0.id == deviceID }
+    }
+
+    func fetchAll() async throws -> [BatterySnapshot] {
+        switch fetchMode {
+        case .success:
+            return records
+        case .failure:
+            throw FakeCloudFailure()
+        case .iCloudUnavailable:
+            throw CloudBatteryStoreError.iCloudUnavailable
+        }
+    }
+}
+
+@MainActor
+private struct FixedBatteryReader: BatteryReading {
+    let snapshot: BatterySnapshot
+
+    func read() -> BatterySnapshot {
+        snapshot
     }
 }
