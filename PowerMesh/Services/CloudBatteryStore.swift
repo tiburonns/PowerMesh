@@ -1,19 +1,13 @@
 import CloudKit
 import Foundation
 
-enum CloudBatteryStoreError: LocalizedError {
+enum CloudBatteryStoreError: Error {
     case iCloudUnavailable
-
-    var errorDescription: String? {
-        switch self {
-        case .iCloudUnavailable:
-            return "iCloud no está disponible para PowerMesh en este dispositivo."
-        }
-    }
 }
 
 actor CloudBatteryStore {
     static let recordType = "BatterySnapshot"
+    static let containerIdentifier = "iCloud.com.tiburonns.PowerMesh"
 
     private var database: CKDatabase?
 
@@ -26,7 +20,9 @@ actor CloudBatteryStore {
             throw CloudBatteryStoreError.iCloudUnavailable
         }
 
-        let createdDatabase = CKContainer.default().privateCloudDatabase
+        let createdDatabase = CKContainer(
+            identifier: Self.containerIdentifier
+        ).privateCloudDatabase
         database = createdDatabase
         return createdDatabase
     }
