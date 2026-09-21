@@ -10,7 +10,7 @@ PowerMesh is a multilingual SwiftUI app that aims to show the battery status of 
 
 ## Current status
 
-> **Current `main`: 0.1.4 (build 5).** This is an active development build; physical CloudKit validation is still part of the acceptance process.
+> **Current `main`: 0.1.5 (build 6).** This is an active development build; physical CloudKit validation is still part of the acceptance process.
 
 PowerMesh now ships as a **real clonable Xcode project**.
 
@@ -36,6 +36,7 @@ You do not need to create a project or targets manually.
 - Private CloudKit snapshot model for cross-device synchronization.
 - Stable per-device identity stored in Keychain, with automatic migration from earlier UserDefaults IDs.
 - Deterministic reconciliation that keeps the current device authoritative while deduplicating remote CloudKit snapshots.
+- Injectable CloudKit boundary with deterministic failure tests; malformed battery snapshots are rejected before upload and ignored on decode.
 - Settings cleanup for obsolete remote device snapshots.
 - Shared SwiftUI battery dashboard.
 - macOS menu-bar view.
@@ -158,7 +159,7 @@ PowerMesh does not intentionally store Apple IDs, IMEI values, serial numbers, o
 
 ## Estado actual
 
-> **`main` actual: 0.1.4 (build 5).** Es una compilación activa de desarrollo; la validación física de CloudKit sigue formando parte del proceso de aceptación.
+> **`main` actual: 0.1.5 (build 6).** Es una compilación activa de desarrollo; la validación física de CloudKit sigue formando parte del proceso de aceptación.
 
 PowerMesh ahora se entrega como un **proyecto real de Xcode que puedes clonar**.
 
@@ -184,6 +185,7 @@ No necesitas crear manualmente el proyecto ni los targets.
 - Modelo de snapshots en CloudKit privado para sincronización entre dispositivos.
 - Identidad estable por dispositivo guardada en Keychain, con migración automática desde IDs anteriores en UserDefaults.
 - Reconciliación determinista que mantiene al dispositivo actual como fuente autoritativa y elimina duplicados remotos de CloudKit.
+- Límite de CloudKit inyectable con pruebas deterministas de fallos; los snapshots de batería inválidos se rechazan antes de subir y se ignoran al decodificar.
 - Limpieza desde Ajustes de snapshots obsoletos de dispositivos remotos.
 - Dashboard SwiftUI compartido.
 - Vista de barra de menús en macOS.
