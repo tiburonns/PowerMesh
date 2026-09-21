@@ -55,6 +55,27 @@ struct BatterySnapshot: Identifiable, Codable, Hashable, Sendable {
     var updatedAt: Date
     var source: String
 
+    var isValidForSync: Bool {
+        let cleanID = id.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cleanSource = source.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !cleanID.isEmpty,
+              cleanID.count <= 256,
+              !cleanName.isEmpty,
+              cleanName.count <= 256,
+              !cleanSource.isEmpty,
+              cleanSource.count <= 128 else {
+            return false
+        }
+
+        if let level, !(0...100).contains(level) {
+            return false
+        }
+
+        return true
+    }
+
     var isStale: Bool {
         isStale(at: .now)
     }
