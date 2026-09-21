@@ -3,6 +3,7 @@ import Foundation
 
 enum CloudBatteryStoreError: Error, Equatable {
     case iCloudUnavailable
+    case invalidSnapshot
 }
 
 protocol BatteryCloudStore: Sendable {
@@ -34,6 +35,10 @@ actor CloudBatteryStore: BatteryCloudStore {
     }
 
     func upsert(_ snapshot: BatterySnapshot) async throws {
+        guard snapshot.isValidForSync else {
+            throw CloudBatteryStoreError.invalidSnapshot
+        }
+
         let database = try privateDatabase()
         let recordID = CKRecord.ID(recordName: "device-\(snapshot.id)")
         let record: CKRecord
@@ -136,7 +141,7 @@ actor CloudBatteryStore: BatteryCloudStore {
         let level = (record["level"] as? NSNumber)?.intValue
         let source = record["source"] as? String ?? "Unknown"
 
-        return BatterySnapshot(
+        let snapshot = BatterySnapshot(
             id: deviceID,
             name: deviceName,
             kind: kind,
@@ -145,5 +150,7 @@ actor CloudBatteryStore: BatteryCloudStore {
             updatedAt: updatedAt,
             source: source
         )
+
+        return snapshot.isValidForSync ? snapshot : nil
     }
 }
