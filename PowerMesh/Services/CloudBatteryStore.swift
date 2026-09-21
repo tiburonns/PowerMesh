@@ -1,9 +1,18 @@
 import CloudKit
 import Foundation
 
-enum CloudBatteryStoreError: Error, Equatable {
+enum CloudBatteryStoreError: LocalizedError, Equatable {
     case iCloudUnavailable
     case invalidSnapshot
+
+    var errorDescription: String? {
+        switch self {
+        case .iCloudUnavailable:
+            return "iCloud is unavailable."
+        case .invalidSnapshot:
+            return "The battery snapshot contains invalid sync data."
+        }
+    }
 }
 
 protocol BatteryCloudStore: Sendable {
