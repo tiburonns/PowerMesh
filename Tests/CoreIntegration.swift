@@ -151,6 +151,92 @@ struct PowerMeshCoreIntegration {
             "Language picker title changed unexpectedly"
         )
     }
+
+
+    @MainActor
+    private static func testDashboardStoreUsesInjectedCloudAndKeepsLastGoodState() async throws {
+        let local = snapshot(
+            id: "local-device",
+            name: "Local iPhone",
+            updatedAt: Date(timeIntervalSince1970: 500),
+            level: 88
+        )
+        let remote = snapshot(
+            id: "remote-device",
+            name: "Remote iPad",
+            updatedAt: Date(timeIntervalSince1970: 450),
+            level: 64
+        )
+        let cloud = FakeBatteryCloudStore(records: [remote])
+        let store = BatteryDashboardStore(
+            cloud: cloud,
+            batteryReader: FixedBatteryReader(snapshot: local),
+            remoteRefreshInterval: 0
+        )
+
+        await store.refreshNow(forceUpload: true)
+
+        try require(
+            store.snapshots.contains { $0.id == local.id && $0.level == 88 },
+            "Injected store did not keep the authoritative local snapshot"
+        )
+        try require(
+            store.snapshots.contains { $0.id == remote.id && $0.level == 64 },
+            "Injected store did not merge the remote snapshot"
+        )
+        try require(
+            store.syncIssue == nil,
+            "Successful injected sync unexpectedly reported an issue"
+        )
+
+        let lastGood = store.snapshots
+        await cloud.setFetchMode(.failure)
+        await store.refreshNow(forceUpload: false)
+
+        try require(
+            store.snapshots == lastGood,
+            "A failed remote fetch replaced the last good dashboard state"
+        )
+        guard case .detail(let detail) = store.syncIssue else {
+            throw PowerMeshTestFailure.failed(
+                "A failed remote fetch did not surface a detailed sync issue"
+            )
+        }
+        try require(
+            detail.contains("Synthetic CloudKit fetch failure"),
+            "Detailed sync failure lost the underlying error"
+        )
+    }
+
+    @MainActor
+    private static func testDashboardStoreMapsICloudUnavailable() async throws {
+        let local = snapshot(
+            id: "local-device",
+            name: "Local iPhone",
+            updatedAt: Date(timeIntervalSince1970: 700),
+            level: 91
+        )
+        let cloud = FakeBatteryCloudStore(
+            records: [],
+            fetchMode: .iCloudUnavailable
+        )
+        let store = BatteryDashboardStore(
+            cloud: cloud,
+            batteryReader: FixedBatteryReader(snapshot: local),
+            remoteRefreshInterval: 0
+        )
+
+        await store.refreshNow(forceUpload: true)
+
+        try require(
+            store.syncIssue == .iCloudUnavailable,
+            "Cloud unavailability was not mapped to the dedicated dashboard issue"
+        )
+        try require(
+            store.snapshots.contains { $0.id == local.id },
+            "Cloud unavailability removed the current device snapshot"
+        )
+    }
 }
 
 
