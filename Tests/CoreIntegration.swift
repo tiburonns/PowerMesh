@@ -19,9 +19,10 @@ struct PowerMeshCoreIntegration {
         try testLocalSnapshotOverridesCloudCopy()
         try testLanguageFallbacks()
         try testSyncIssueLocalization()
+        try testSnapshotSyncValidation()
         try await testDashboardStoreUsesInjectedCloudAndKeepsLastGoodState()
         try await testDashboardStoreMapsICloudUnavailable()
-        print("PASS: PowerMesh staleness, reconciliation, localization, and injected sync failure handling")
+        print("PASS: PowerMesh staleness, reconciliation, localization, sync validation, and injected sync failure handling")
     }
 
     private static func require(
@@ -134,6 +135,41 @@ struct PowerMeshCoreIntegration {
             DashboardSyncIssue.iCloudUnavailable.message(in: .spanish)
                 == "iCloud no está disponible para PowerMesh en este dispositivo.",
             "Spanish iCloud availability message failed"
+        )
+    }
+
+    private static func testSnapshotSyncValidation() throws {
+        let valid = snapshot(
+            id: "device-1",
+            name: "iPhone",
+            updatedAt: Date(timeIntervalSince1970: 100),
+            level: 50
+        )
+        try require(
+            valid.isValidForSync,
+            "A valid battery snapshot was rejected"
+        )
+
+        var invalidLevel = valid
+        invalidLevel.level = 101
+        try require(
+            !invalidLevel.isValidForSync,
+            "Battery level above 100 was accepted"
+        )
+
+        var invalidID = valid
+        invalidID = BatterySnapshot(
+            id: "   ",
+            name: invalidID.name,
+            kind: invalidID.kind,
+            level: invalidID.level,
+            state: invalidID.state,
+            updatedAt: invalidID.updatedAt,
+            source: invalidID.source
+        )
+        try require(
+            !invalidID.isValidForSync,
+            "Blank device identity was accepted"
         )
     }
 
