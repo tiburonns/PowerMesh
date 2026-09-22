@@ -46,16 +46,18 @@ actor CloudBatteryStore: BatteryCloudStore {
 
     private var database: CKDatabase?
 
-    private func privateDatabase() throws -> CKDatabase {
-        if let database = database {
+    private func privateDatabase() async throws -> CKDatabase {
+        if let database {
             return database
         }
 
-        guard FileManager.default.ubiquityIdentityToken != nil else {
+        let container = CKContainer(identifier: Self.containerIdentifier)
+        let accountStatus = try await container.accountStatus()
+        guard accountStatus == .available else {
             throw CloudBatteryStoreError.iCloudUnavailable
         }
 
-        let createdDatabase = CKContainer.default().privateCloudDatabase
+        let createdDatabase = container.privateCloudDatabase
         database = createdDatabase
         return createdDatabase
     }
@@ -65,7 +67,7 @@ actor CloudBatteryStore: BatteryCloudStore {
             throw CloudBatteryStoreError.invalidSnapshot
         }
 
-        let database = try privateDatabase()
+        let database = try await privateDatabase()
         let recordID = CKRecord.ID(recordName: "device-\(snapshot.id)")
         let record: CKRecord
 
@@ -92,7 +94,7 @@ actor CloudBatteryStore: BatteryCloudStore {
     }
 
     func delete(deviceID: String) async throws {
-        let database = try privateDatabase()
+        let database = try await privateDatabase()
         let recordID = CKRecord.ID(recordName: "device-\(deviceID)")
         do {
             _ = try await database.deleteRecord(withID: recordID)
@@ -102,7 +104,7 @@ actor CloudBatteryStore: BatteryCloudStore {
     }
 
     func fetchAll() async throws -> [BatterySnapshot] {
-        let database = try privateDatabase()
+        let database = try await privateDatabase()
         let query = CKQuery(
             recordType: Self.recordType,
             predicate: NSPredicate(value: true)
