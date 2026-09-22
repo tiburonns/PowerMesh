@@ -109,6 +109,7 @@ struct LocalBatteryReader: BatteryReading {
             let maximum = description[kIOPSMaxCapacityKey] as? Int
             let charging = description[kIOPSIsChargingKey] as? Bool ?? false
             let charged = description[kIOPSIsChargedKey] as? Bool ?? false
+            let powerSourceState = description[kIOPSPowerSourceStateKey] as? String
 
             let level: Int? = {
                 guard let current else { return nil }
@@ -118,7 +119,18 @@ struct LocalBatteryReader: BatteryReading {
                 return max(0, min(100, Int((Double(current) / Double(maximum) * 100).rounded())))
             }()
 
-            let state: ChargeState = charged ? .full : (charging ? .charging : .unplugged)
+            let state: ChargeState
+            if charged {
+                state = .full
+            } else if charging {
+                state = .charging
+            } else if powerSourceState == kIOPSACPowerValue {
+                // A Mac can intentionally pause charging while still connected
+                // to external power (for example, optimized battery charging).
+                state = .externalPower
+            } else {
+                state = .unplugged
+            }
 
             return BatterySnapshot(
                 id: DeviceIdentity.id,

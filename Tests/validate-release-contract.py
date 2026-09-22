@@ -39,13 +39,18 @@ if not testing_es.startswith(f"# PowerMesh {version} "):
 # Main/Watch CloudKit + App Group.
 main_entitlements = load(ROOT / "PowerMesh/PowerMesh.entitlements")
 watch_entitlements = load(ROOT / "PowerMesh/PowerMeshWatch.entitlements")
+mac_entitlements = load(ROOT / "PowerMesh/PowerMeshMac.entitlements")
 widget_entitlements = load(ROOT / "PowerMeshWidgets/PowerMeshWidgets.entitlements")
 
 expected_container = ["iCloud.com.tiburonns.PowerMesh"]
 expected_services = ["CloudKit"]
 expected_group = ["group.com.tiburonns.PowerMesh"]
 
-for label, entitlements in [("main", main_entitlements), ("watch", watch_entitlements)]:
+for label, entitlements in [
+    ("main", main_entitlements),
+    ("watch", watch_entitlements),
+    ("mac", mac_entitlements),
+]:
     if entitlements.get("com.apple.developer.icloud-container-identifiers") != expected_container:
         fail(f"CloudKit contract failed: {label} container mismatch")
     if entitlements.get("com.apple.developer.icloud-services") != expected_services:
@@ -53,12 +58,20 @@ for label, entitlements in [("main", main_entitlements), ("watch", watch_entitle
     if entitlements.get("com.apple.security.application-groups") != expected_group:
         fail(f"App Group contract failed: {label} group mismatch")
 
+for label, entitlements in [("main", main_entitlements), ("watch", watch_entitlements)]:
+    if entitlements.get("aps-environment") not in {"development", "production"}:
+        fail(f"APNs contract failed: {label} aps-environment is missing")
+
+if mac_entitlements.get("com.apple.developer.aps-environment") not in {"development", "production"}:
+    fail("APNs contract failed: macOS APNs entitlement is missing")
+
 if widget_entitlements.get("com.apple.security.application-groups") != expected_group:
     fail("App Group contract failed: widget group mismatch")
 
 for required in [
     "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMesh.entitlements;",
     "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMeshWatch.entitlements;",
+    '"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = PowerMesh/PowerMeshMac.entitlements;',
     "CODE_SIGN_ENTITLEMENTS = PowerMeshWidgets/PowerMeshWidgets.entitlements;",
     "PowerMeshWidgets.appex",
     "INFOPLIST_FILE = PowerMeshWidgets/Info.plist;",
@@ -157,6 +170,16 @@ if "com.tiburonns.PowerMesh.refresh" not in background:
     fail("background contract failed: iOS identifier mismatch")
 if "WatchBackgroundRefreshCoordinator" not in background:
     fail("background contract failed: watchOS refresh path missing")
+
+lifecycle = (ROOT / "PowerMesh/Support/AppLifecycle.swift").read_text(encoding="utf-8")
+for required in [
+    "PowerMeshWatchAppDelegate",
+    "WKApplicationDelegate",
+    "WKApplication.shared().registerForRemoteNotifications()",
+    "WKBackgroundFetchResult",
+]:
+    if required not in lifecycle:
+        fail(f"Watch push contract failed: missing {required}")
 
 ble = (ROOT / "PowerMesh/Services/AccessoryBatteryScanner.swift").read_text(encoding="utf-8")
 for required in ['CBUUID(string: "180F")', 'CBUUID(string: "2A19")']:

@@ -77,3 +77,26 @@ final class PowerMeshMacAppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 #endif
+
+
+#if os(watchOS)
+import WatchKit
+
+final class PowerMeshWatchAppDelegate: NSObject, WKApplicationDelegate {
+    func applicationDidFinishLaunching() {
+        #if !POWERMESH_LOCAL_ONLY
+        WKApplication.shared().registerForRemoteNotifications()
+        #endif
+    }
+
+    func didReceiveRemoteNotification(
+        _ userInfo: [AnyHashable: Any]
+    ) async -> WKBackgroundFetchResult {
+        guard CKNotification(fromRemoteNotificationDictionary: userInfo) != nil else {
+            return .noData
+        }
+
+        return await PowerMeshBackgroundRouter.shared.refresh() ? .newData : .failed
+    }
+}
+#endif

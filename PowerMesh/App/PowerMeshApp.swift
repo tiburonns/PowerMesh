@@ -13,6 +13,8 @@ struct PowerMeshApp: App {
     @UIApplicationDelegateAdaptor(PowerMeshAppDelegate.self) private var appDelegate
     #elseif os(macOS)
     @NSApplicationDelegateAdaptor(PowerMeshMacAppDelegate.self) private var appDelegate
+    #elseif os(watchOS)
+    @WKApplicationDelegateAdaptor(PowerMeshWatchAppDelegate.self) private var appDelegate
     #endif
 
     init() {
