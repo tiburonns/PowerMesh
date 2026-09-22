@@ -33,7 +33,8 @@ private enum WidgetSharedData {
         let systemSpanish = Locale.preferredLanguages.first?
             .lowercased()
             .hasPrefix("es") == true
-        let spanish = preference == "spanish" || (preference == "system" && systemSpanish)
+        let spanish = preference == "spanish"
+            || (preference == "system" && systemSpanish)
 
         return BatteryWidgetEntry(
             date: .now,
@@ -191,11 +192,15 @@ private struct BatteryOverviewWidgetView: View {
     }
 
     private var maxItems: Int {
+        #if os(watchOS)
+        return 2
+        #else
         switch family {
         case .systemLarge, .systemExtraLarge: return 8
         case .systemMedium: return 4
         default: return 2
         }
+        #endif
     }
 
     private func icon(for kind: String) -> String {
@@ -219,8 +224,8 @@ struct BatteryOverviewWidget: Widget {
         ) { entry in
             BatteryOverviewWidgetView(entry: entry)
         }
-        .configurationDisplayName("PowerMesh")
-        .description("Battery status for your PowerMesh devices.")
+        .configurationDisplayName("widget.name")
+        .description("widget.description")
         .supportedFamilies(supportedFamilies)
     }
 
