@@ -26,9 +26,9 @@ final class PowerMeshBackgroundRouter {
 }
 
 #if os(iOS)
-@preconcurrency import UIKit
+import UIKit
 
-final class PowerMeshAppDelegate: NSObject, UIApplicationDelegate {
+final class PowerMeshAppDelegate: NSObject, @preconcurrency UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
@@ -80,9 +80,9 @@ final class PowerMeshMacAppDelegate: NSObject, NSApplicationDelegate {
 
 
 #if os(watchOS)
-@preconcurrency import WatchKit
+import WatchKit
 
-final class PowerMeshWatchAppDelegate: NSObject, WKApplicationDelegate {
+final class PowerMeshWatchAppDelegate: NSObject, @preconcurrency WKApplicationDelegate {
     func applicationDidFinishLaunching() {
         #if !POWERMESH_LOCAL_ONLY
         WKApplication.shared().registerForRemoteNotifications()

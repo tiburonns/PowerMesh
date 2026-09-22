@@ -393,3 +393,13 @@ for target, sdk in [
         fail(f"widget CI contract failed: {target} must build directly with {sdk}")
 if "-target" not in workflow_source:
     fail("widget CI contract failed: extension jobs must use xcodebuild -target")
+
+
+workflow_source = (ROOT / ".github/workflows/build.yml").read_text(encoding="utf-8")
+for required in ["SWIFT_STRICT_CONCURRENCY=complete", "SWIFT_TREAT_WARNINGS_AS_ERRORS=YES"]:
+    if required not in workflow_source:
+        fail(f"strict concurrency CI contract failed: missing {required}")
+lifecycle_source = (ROOT / "PowerMesh/Support/AppLifecycle.swift").read_text(encoding="utf-8")
+for required in ["@preconcurrency UIApplicationDelegate", "@preconcurrency WKApplicationDelegate"]:
+    if required not in lifecycle_source:
+        fail(f"delegate concurrency contract failed: missing {required}")
