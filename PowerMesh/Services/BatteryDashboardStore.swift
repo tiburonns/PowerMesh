@@ -37,18 +37,18 @@ final class BatteryDashboardStore: ObservableObject {
 
     init(
         cloud: any BatteryCloudStore = CloudBatteryStore(),
-        batteryReader: any BatteryReading = LocalBatteryReader(),
+        batteryReader: (any BatteryReading)? = nil,
         remoteRefreshInterval: TimeInterval = 5 * 60,
         cache: SnapshotCache = SnapshotCache(),
         historyStore: BatteryHistoryStore = BatteryHistoryStore(),
-        accessoryScanner: AccessoryBatteryScanner = AccessoryBatteryScanner()
+        accessoryScanner: AccessoryBatteryScanner? = nil
     ) {
         self.cloud = cloud
-        self.batteryReader = batteryReader
+        self.batteryReader = batteryReader ?? LocalBatteryReader()
         self.remoteRefreshInterval = remoteRefreshInterval
         self.cache = cache
         self.historyStore = historyStore
-        self.accessoryScanner = accessoryScanner
+        self.accessoryScanner = accessoryScanner ?? AccessoryBatteryScanner()
     }
 
     deinit {

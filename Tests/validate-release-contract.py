@@ -208,8 +208,19 @@ for config_id, config_name in [
     block = config_block(config_id, config_name)
     if 'SUPPORTED_PLATFORMS = "watchos watchsimulator";' not in block:
         fail("Watch widget target contract failed: dedicated target is not watchOS-only")
+    if "SDKROOT = watchos;" not in block:
+        fail("Watch widget SDKROOT contract failed")
     if "iphoneos" in block or "macosx" in block:
         fail("Watch widget target contract failed: dedicated target leaks non-watch platforms")
+
+for config_id, config_name in [
+    ("F31000000000000000000001", "Debug"),
+    ("F31000000000000000000003", "DebugLocal"),
+    ("F31000000000000000000002", "Release"),
+]:
+    block = config_block(config_id, config_name)
+    if "SDKROOT = auto;" not in block:
+        fail("iOS/macOS widget SDKROOT contract failed")
 
 if "PowerMeshWatchWidgets.appex in Embed App Extensions" not in project:
     fail("Watch widget target contract failed: Watch app does not embed dedicated widget extension")
@@ -360,3 +371,14 @@ print(
     f"PASS: PowerMesh {version} (build {build}) release contract: "
     "bilingual UI/docs, CloudKit, background refresh, App Group/widgets, BLE, privacy"
 )
+
+
+# MainActor-isolated concrete services must be created inside BatteryDashboardStore.init,
+# not in default argument expressions (which are evaluated outside the actor context).
+dashboard_store = (ROOT / "PowerMesh/Services/BatteryDashboardStore.swift").read_text(encoding="utf-8")
+for forbidden in [
+    "batteryReader: any BatteryReading = LocalBatteryReader()",
+    "accessoryScanner: AccessoryBatteryScanner = AccessoryBatteryScanner()",
+]:
+    if forbidden in dashboard_store:
+        fail(f"actor default-argument contract failed: {forbidden}")

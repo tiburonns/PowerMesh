@@ -89,7 +89,7 @@ final class PowerMeshWatchAppDelegate: NSObject, WKApplicationDelegate {
         #endif
     }
 
-    func didReceiveRemoteNotification(
+    nonisolated func didReceiveRemoteNotification(
         _ userInfo: [AnyHashable: Any]
     ) async -> WKBackgroundFetchResult {
         guard CKNotification(fromRemoteNotificationDictionary: userInfo) != nil else {
