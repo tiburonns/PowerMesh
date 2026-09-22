@@ -1,3 +1,4 @@
+
 # PowerMesh architecture / Arquitectura de PowerMesh
 
 [English](#english) · [Español](#español)
@@ -6,140 +7,104 @@
 
 # English
 
-## Goal
-
-Provide one battery dashboard across the user's Apple devices without a custom backend.
-
-## Data flow
+## Architecture
 
 ```text
-Local battery API
-      ↓
-LocalBatteryReader
-      ↓
-BatterySnapshot
-      ↓
-BatteryDashboardStore
-      ↓
-CloudBatteryStore
-      ↓
-Private CloudKit database
-      ↓
-Other PowerMesh installations
+UIDevice / WKInterfaceDevice / IOPowerSources / public BLE
+                         ↓
+                 BatterySnapshot
+                         ↓
+              BatteryDashboardStore
+        ┌────────────────┼────────────────┐
+        ↓                ↓                ↓
+  local history     App Group cache    private CloudKit
+        ↓                ↓                ↓
+ detail + trends    widgets/Watch     other installs
+                    complication
 ```
 
-## Source of truth
+Each installation owns a stable random Keychain ID. CloudKit records use `device-<UUID>`. Remote duplicates reconcile by ID and newest timestamp; the running device remains authoritative for its fresh local reading.
 
-The private CloudKit database is the shared source of truth for cross-device snapshots. Each installation owns exactly one stable `device-<UUID>` record.
+### Freshness
 
-The local UI merges its freshly read snapshot before the network round trip so the current device does not appear stale while CloudKit is being updated.
+- Live: under 5 minutes.
+- Recent: under 30 minutes.
+- Stale: under 2 hours.
+- Offline: 2 hours or more.
 
-## Freshness model
+These are freshness labels, not direct connectivity probes.
 
-A snapshot is considered stale after 30 minutes. This is intentionally explicit because iOS, iPadOS, and watchOS do not allow arbitrary continuous background execution.
+### CloudKit and background delivery
 
-## Localization architecture
+`CloudBatteryStore` uses the private database, verifies account availability, and installs a `CKQuerySubscription` for `BatterySnapshot` changes. A push is only a change signal; PowerMesh performs a new query before updating its cache.
 
-The user's language preference is stored with `@AppStorage` under the `appLanguage` key.
+iOS uses `BGAppRefreshTask` (`com.tiburonns.PowerMesh.refresh`). watchOS uses its native app-refresh path. macOS receives CloudKit remote notifications and also refreshes normally in foreground.
 
-Supported choices are:
+### Shared cache and WidgetKit
 
-- `system`
-- `english`
-- `spanish`
+Validated snapshots are written to `group.com.tiburonns.PowerMesh`. WidgetKit reads only this cache and never contacts CloudKit directly. Writes request timeline reloads. The widget extension supplies iPhone/iPad/macOS widgets and modern Watch complications.
 
-`PowerMeshApp` injects both the selected `AppLanguage` and its corresponding SwiftUI `Locale` into the environment. Views obtain all user-facing copy from `AppLanguage.text(_:)`, while model display labels such as charge state are resolved using the same language context.
+### History, trends, alerts
 
-When `system` is selected, PowerMesh currently resolves Spanish system locales to Spanish and uses English as the fallback for other locales. This keeps behavior deterministic until additional translations are added.
+PowerMesh retains up to seven days of compact samples, suppresses redundant close samples, and computes percent/hour only with enough elapsed time. Low-battery alerts are local, configurable, and deduplicated.
 
-This centralized layer also prevents CloudKit/service errors from being permanently stored as already-localized UI strings: the store retains the technical error detail and the view adds the localized explanation at render time.
+### Bluetooth
 
-See `LOCALIZATION.md` for the full contribution policy.
+BLE scanning is opt-in and limited to the standard Battery Service `180F` and Battery Level `2A19`. Compatible accessory snapshots flow through the same cache/history/CloudKit pipeline. No private Apple accessory API is used.
 
-## Privacy model
+### Local configuration
 
-No custom account system and no external server are required for the MVP. Data remains in the user's private CloudKit database.
-
-## Planned modules
-
-- Complete Xcode project and target configuration
-- Background refresh coordinator
-- CloudKit subscriptions
-- Widget shared cache / App Group
-- WidgetKit targets
-- watchOS complication
-- Battery history
-- Threshold alerts
-- BLE accessory provider
-- Additional localizations
+`DebugLocal` / `PowerMesh Local` removes CloudKit and App Group entitlement requirements for pre-membership testing.
 
 ---
 
 # Español
 
-## Objetivo
-
-Ofrecer un único dashboard de batería para los dispositivos Apple del usuario sin depender de un backend propio.
-
-## Flujo de datos
+## Arquitectura
 
 ```text
-API local de batería
-      ↓
-LocalBatteryReader
-      ↓
-BatterySnapshot
-      ↓
-BatteryDashboardStore
-      ↓
-CloudBatteryStore
-      ↓
-Base privada de CloudKit
-      ↓
-Otras instalaciones de PowerMesh
+UIDevice / WKInterfaceDevice / IOPowerSources / BLE público
+                         ↓
+                 BatterySnapshot
+                         ↓
+              BatteryDashboardStore
+        ┌────────────────┼────────────────┐
+        ↓                ↓                ↓
+ historial local    caché App Group    CloudKit privado
+        ↓                ↓                ↓
+ detalle+tendencia  widgets/Watch     otras instalaciones
+                    complication
 ```
 
-## Fuente de verdad
+Cada instalación tiene un ID aleatorio estable en Keychain. CloudKit usa registros `device-<UUID>`. Los duplicados se reconcilian por ID y timestamp; el dispositivo actual conserva su lectura local reciente como autoritativa.
 
-La base privada de CloudKit es la fuente de verdad compartida para los snapshots entre dispositivos. Cada instalación posee exactamente un registro estable `device-<UUID>`.
+### Vigencia
 
-La interfaz local combina primero su snapshot recién leído, antes del viaje de red, para que el dispositivo actual no parezca desactualizado mientras CloudKit termina de sincronizarse.
+- En vivo: menos de 5 minutos.
+- Reciente: menos de 30 minutos.
+- Desactualizado: menos de 2 horas.
+- Sin conexión: 2 horas o más.
 
-## Modelo de vigencia
+Son etiquetas de vigencia, no pruebas directas de conectividad.
 
-Un snapshot se considera antiguo después de 30 minutos. Esto se muestra de forma explícita porque iOS, iPadOS y watchOS no permiten una ejecución continua arbitraria en segundo plano.
+### CloudKit y segundo plano
 
-## Arquitectura de localización
+`CloudBatteryStore` usa la base privada, comprueba la cuenta e instala una `CKQuerySubscription` para cambios de `BatterySnapshot`. El push solo indica que hubo cambios; PowerMesh vuelve a consultar antes de actualizar el caché.
 
-La preferencia de idioma del usuario se guarda con `@AppStorage` usando la clave `appLanguage`.
+iOS usa `BGAppRefreshTask` (`com.tiburonns.PowerMesh.refresh`), watchOS su ruta app-refresh nativa y macOS callbacks de CloudKit más actualización normal en foreground.
 
-Las opciones admitidas son:
+### Caché compartida y WidgetKit
 
-- `system`
-- `english`
-- `spanish`
+Los snapshots validados se guardan en `group.com.tiburonns.PowerMesh`. WidgetKit lee únicamente ese caché; no consulta CloudKit directamente. Las escrituras solicitan recargar timelines. La extensión sirve widgets de iPhone/iPad/macOS y complications modernas de Watch.
 
-`PowerMeshApp` inyecta al entorno tanto el `AppLanguage` seleccionado como su `Locale` de SwiftUI correspondiente. Las vistas obtienen todo el texto visible mediante `AppLanguage.text(_:)`, mientras que etiquetas de modelo como el estado de carga se resuelven usando el mismo contexto de idioma.
+### Historial, tendencias y alertas
 
-Cuando se selecciona `system`, PowerMesh actualmente resuelve los sistemas en español a español y utiliza inglés como alternativa para los demás idiomas. Esto mantiene un comportamiento determinista hasta que se añadan más traducciones.
+Se conservan hasta siete días de muestras compactas, se eliminan muestras cercanas redundantes y la tendencia porcentaje/hora solo se calcula con duración suficiente. Las alertas por batería baja son locales, configurables y deduplicadas.
 
-La capa centralizada también evita almacenar errores de CloudKit/servicios como cadenas ya traducidas: el store conserva el detalle técnico y la vista añade la explicación localizada al momento de renderizar.
+### Bluetooth
 
-Consulta `LOCALIZATION.md` para la política completa de contribución.
+El escaneo BLE es opcional y limitado a Battery Service `180F` y Battery Level `2A19`. Los accesorios compatibles usan el mismo pipeline de caché/historial/CloudKit. No se usan APIs privadas de Apple.
 
-## Modelo de privacidad
+### Configuración local
 
-El MVP no requiere sistema de cuentas propio ni servidor externo. Los datos permanecen en la base privada de CloudKit del usuario.
-
-## Módulos planeados
-
-- Proyecto Xcode completo y configuración de targets
-- Coordinador de actualización en segundo plano
-- Suscripciones de CloudKit
-- Cache compartida / App Group para widgets
-- Targets de WidgetKit
-- Complication de watchOS
-- Historial de batería
-- Alertas por umbral
-- Proveedor BLE para accesorios
-- Localizaciones adicionales
+`DebugLocal` / `PowerMesh Local` elimina requisitos de entitlement CloudKit/App Group para pruebas antes de la membresía.

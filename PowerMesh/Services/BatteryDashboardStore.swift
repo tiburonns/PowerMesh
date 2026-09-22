@@ -165,6 +165,7 @@ final class BatteryDashboardStore: ObservableObject {
             snapshots = cached
         }
         historyByDevice = await historyStore.all()
+        lastSuccessfulSync = await cache.loadLastSuccessfulSync()
     }
 
     private func prepareRemoteChanges() async {
@@ -212,7 +213,9 @@ final class BatteryDashboardStore: ObservableObject {
             let remote = try await cloud.fetchAll()
             snapshots = BatterySnapshotReconciler.merge(remote: remote, local: localSnapshot)
             lastRemoteRefresh = .now
-            lastSuccessfulSync = .now
+            let syncDate = Date()
+            lastSuccessfulSync = syncDate
+            await cache.saveLastSuccessfulSync(syncDate)
             syncIssue = nil
             await persistObservedState()
             return true

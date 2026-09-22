@@ -14,7 +14,14 @@ final class PowerMeshBackgroundRouter {
     }
 
     func refresh() async -> Bool {
-        await refreshHandler?() ?? false
+        if let refreshHandler {
+            return await refreshHandler()
+        }
+
+        // A silent CloudKit notification can launch the app before SwiftUI
+        // creates the dashboard task. Use a minimal store as a safe fallback.
+        let fallbackStore = BatteryDashboardStore()
+        return await fallbackStore.refreshForBackground()
     }
 }
 

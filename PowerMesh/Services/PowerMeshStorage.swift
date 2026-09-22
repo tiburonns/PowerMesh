@@ -4,6 +4,7 @@ enum PowerMeshStorage {
     static let appGroupIdentifier = "group.com.tiburonns.PowerMesh"
     static let snapshotsKey = "powermesh.cache.snapshots.v1"
     static let historyKey = "powermesh.cache.history.v1"
+    static let lastSuccessfulSyncKey = "powermesh.cache.lastSuccessfulSync.v1"
 
     static var sharedDefaults: UserDefaults {
         #if POWERMESH_LOCAL_ONLY
@@ -61,6 +62,14 @@ actor SnapshotCache {
     func remove(deviceID: String) {
         let filtered = load().filter { $0.id != deviceID }
         save(filtered)
+    }
+
+    func loadLastSuccessfulSync() -> Date? {
+        defaults.object(forKey: PowerMeshStorage.lastSuccessfulSyncKey) as? Date
+    }
+
+    func saveLastSuccessfulSync(_ date: Date) {
+        defaults.set(date, forKey: PowerMeshStorage.lastSuccessfulSyncKey)
     }
 }
 

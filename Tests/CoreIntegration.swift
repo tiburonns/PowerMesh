@@ -16,6 +16,7 @@ struct PowerMeshCoreIntegration {
     static func main() async throws {
         try testStalenessBoundary()
         try testAvailabilityBoundaries()
+        try testTrendAnalysis()
         try testReconciliationPrefersNewestRemoteDuplicate()
         try testLocalSnapshotOverridesCloudCopy()
         try testLanguageFallbacks()
@@ -82,6 +83,48 @@ struct PowerMeshCoreIntegration {
         try require(recent.availability(at: now) == .recent, "Recent availability boundary failed")
         try require(stale.availability(at: now) == .stale, "Stale availability boundary failed")
         try require(offline.availability(at: now) == .offline, "Offline availability boundary failed")
+    }
+
+    private static func testTrendAnalysis() throws {
+        let now = Date(timeIntervalSince1970: 30_000)
+        let points = [
+            BatteryHistoryPoint(
+                deviceID: "trend",
+                date: now.addingTimeInterval(-2 * 60 * 60),
+                level: 80,
+                state: .unplugged
+            ),
+            BatteryHistoryPoint(
+                deviceID: "trend",
+                date: now,
+                level: 70,
+                state: .unplugged
+            )
+        ]
+
+        let trend = BatteryHistoryAnalyzer.trend(points: points, now: now)
+        try require(trend != nil, "Trend analysis should produce a rate")
+        try require(
+            abs((trend?.percentPerHour ?? 0) - (-5.0)) < 0.001,
+            "Trend analysis produced the wrong percent/hour"
+        )
+
+        let tooShort = [
+            points[0],
+            BatteryHistoryPoint(
+                deviceID: "trend",
+                date: points[0].date.addingTimeInterval(5 * 60),
+                level: 79,
+                state: .unplugged
+            )
+        ]
+        try require(
+            BatteryHistoryAnalyzer.trend(
+                points: tooShort,
+                now: tooShort[1].date
+            ) == nil,
+            "Trend analysis must reject an insufficient sample duration"
+        )
     }
 
     private static func testReconciliationPrefersNewestRemoteDuplicate() throws {

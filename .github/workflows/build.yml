@@ -6,7 +6,16 @@ on:
   pull_request:
 
 jobs:
+  validate:
+    name: Static release contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Validate repository contract
+        run: python3 Tests/validate-release-contract.py
+
   build:
+    needs: validate
     runs-on: macos-latest
     strategy:
       fail-fast: false
@@ -28,15 +37,20 @@ jobs:
             scheme: PowerMeshWatch
             configuration: Debug
             destination: generic/platform=watchOS Simulator
+          - name: Widget iOS
+            scheme: PowerMeshWidgets
+            configuration: Debug
+            destination: generic/platform=iOS Simulator
     name: ${{ matrix.name }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-      - name: Validate release, CloudKit, and privacy contract
+      - name: Lint plists
         run: |
+          plutil -lint PowerMesh/Info.plist
           plutil -lint PowerMesh/PrivacyInfo.xcprivacy
           plutil -lint PowerMesh/PowerMesh.entitlements
           plutil -lint PowerMesh/PowerMeshWatch.entitlements
-          python3 Tests/validate-release-contract.py
+          plutil -lint PowerMeshWidgets/PowerMeshWidgets.entitlements
       - name: Run core tests
         if: matrix.name == 'macOS'
         run: zsh Tests/run-core-tests.sh

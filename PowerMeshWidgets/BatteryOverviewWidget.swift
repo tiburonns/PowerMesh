@@ -112,7 +112,16 @@ private struct BatteryOverviewWidgetView: View {
     }
 
     private var emptyText: String {
-        entry.spanish ? "Abre PowerMesh" : "Open PowerMesh"
+        localized("widget.openPowerMesh")
+    }
+
+    private func localized(_ key: String) -> String {
+        let language = entry.spanish ? "es" : "en"
+        guard let path = Bundle.main.path(forResource: language, ofType: "lproj"),
+              let bundle = Bundle(path: path) else {
+            return key
+        }
+        return bundle.localizedString(forKey: key, value: key, table: nil)
     }
 
     @ViewBuilder

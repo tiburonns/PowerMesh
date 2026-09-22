@@ -1,302 +1,138 @@
+
 # PowerMesh
 
 [English](#english) · [Español](#español)
 
-PowerMesh is a multilingual SwiftUI app that aims to show the battery status of a user's Apple ecosystem in one place. / PowerMesh es una app SwiftUI multilingüe cuyo objetivo es mostrar en un solo lugar la batería del ecosistema Apple de un usuario.
+PowerMesh is a multilingual SwiftUI battery dashboard for the Apple ecosystem. / PowerMesh es un dashboard SwiftUI multilingüe de batería para el ecosistema Apple.
 
 ---
 
 # English
 
-## Current status
+## Status
 
-> **Current `main`: 0.1.5 (build 6).** This is an active development build; physical CloudKit validation is still part of the acceptance process.
-
-PowerMesh now ships as a **real clonable Xcode project**.
-
-```bash
-git clone https://github.com/tiburonns/PowerMesh.git
-cd PowerMesh
-open PowerMesh.xcodeproj
-```
-
-You do not need to create a project or targets manually.
+> **Current `main`: 0.2.0 (build 7).** Feature-complete for the first signed ecosystem acceptance pass. The remaining release gate is physical-device validation of Apple-provisioned capabilities and real hardware behavior.
 
 ### Xcode targets
 
-- `PowerMesh`: iPhone, iPad, and native macOS.
-- `PowerMeshWatch`: Apple Watch.
+- `PowerMesh` — iPhone, iPad, and native macOS.
+- `PowerMeshWatch` — Apple Watch.
+- `PowerMeshWidgets` — iPhone/iPad/macOS widgets and modern Apple Watch complications.
+- `PowerMesh Local` — CloudKit/App Group-free smoke testing before paid-team provisioning.
 
-### Current MVP features
+## Implemented in 0.2
 
-- iPhone / iPad local battery through `UIDevice`.
-- Apple Watch local battery through `WKInterfaceDevice`.
-- Mac battery through IOKit / `IOPowerSources`.
-- Desktop Macs represented as externally powered devices without an internal battery.
-- Private CloudKit snapshot model for cross-device synchronization.
-- Stable per-device identity stored in Keychain, with automatic migration from earlier UserDefaults IDs.
-- Deterministic reconciliation that keeps the current device authoritative while deduplicating remote CloudKit snapshots.
-- Injectable CloudKit boundary with deterministic failure tests; malformed battery snapshots are rejected before upload and ignored on decode.
-- Settings cleanup for obsolete remote device snapshots.
-- Shared SwiftUI battery dashboard.
-- macOS menu-bar view.
-- Stale-data indication instead of pretending old snapshots are real-time values.
-- App language selector with **System**, **English**, and **Español**.
-- Bilingual GitHub documentation in English and Spanish.
+- Local battery reading through `UIDevice`, `WKInterfaceDevice`, and IOKit / `IOPowerSources`.
+- Stable per-installation Keychain identity.
+- Private CloudKit `BatterySnapshot` synchronization and `CKQuerySubscription` change notifications.
+- iOS `BGAppRefreshTask` and watchOS app-refresh paths.
+- Persistent App Group cache: `group.com.tiburonns.PowerMesh`.
+- WidgetKit widgets for iPhone, iPad, Mac, and Watch complications.
+- Live / Recent / Stale / Offline freshness states.
+- Seven-day history and percent/hour trend estimation.
+- Configurable low-battery notifications.
+- macOS menu-bar dashboard.
+- Optional public CoreBluetooth Battery Service (`180F` / `2A19`) support.
+- **System / English / Español** language modes, including widget and Bluetooth-permission localization.
+- Privacy manifest and release-contract validation.
 
-## First test
-
-For a fast compile/UI smoke test, open `PowerMesh.xcodeproj`, select the `PowerMesh` scheme, and run it on **My Mac** or an iPhone/iPad simulator.
-
-On macOS you can also run:
-
-```bash
-bash script/build_and_run.sh
-```
-
-This helper builds without code signing, so CloudKit is not expected to work in that unsigned test.
-
-For complete setup, signing, CloudKit, Watch, and physical-device instructions, read:
-
-**`docs/GETTING_STARTED.md`** and the signed-device release gate in **`docs/TESTING.md`**
-
-## Real cross-device synchronization
-
-To make iPhone, iPad, Mac, and Apple Watch publish to the same battery dashboard, configure both targets with the same Apple Developer team and the same private CloudKit container.
-
-The repository includes the entitlement files used by the targets:
-
-- `PowerMesh/PowerMesh.entitlements`
-- `PowerMesh/PowerMeshWatch.entitlements`
-
-Configured container:
-
-`iCloud.com.tiburonns.PowerMesh`
-
-The Xcode project wires these entitlements into the main and Watch targets. Unsigned smoke-test builds can still compile with `CODE_SIGNING_ALLOWED=NO`, but CloudKit synchronization requires valid signing/provisioning and the configured iCloud container on physical devices.
-
-## CloudKit record
-
-Record type: `BatterySnapshot`
-
-Fields:
-
-- `deviceID`: String
-- `deviceName`: String
-- `kind`: String
-- `level`: optional Number
-- `chargeState`: String
-- `updatedAt`: Date/Time
-- `source`: String
-
-Each device uses a stable UUID stored in Keychain and publishes a `device-<UUID>` record in the user's private CloudKit database. Existing UserDefaults IDs migrate automatically.
-
-## Language policy
-
-The app must always provide:
-
-1. **System**
-2. **English**
-3. **Español**
-
-All user-facing strings go through `PowerMesh/Support/AppLanguage.swift`. English is currently the fallback for unsupported system languages.
-
-All project-owned GitHub documentation must be maintained in English and Spanish. See `docs/LOCALIZATION.md`.
-
-## Important accessory limitation
-
-PowerMesh does not use private Apple APIs. AirPods, Apple Pencil, and some other Apple accessories do not expose a general public API that lets third-party apps obtain every value visible in Apple's Batteries widget.
-
-A future CoreBluetooth provider can support BLE accessories that expose public battery characteristics.
-
-## Repository structure
+## Data flow
 
 ```text
-PowerMesh.xcodeproj/
-PowerMesh/
-├── App/
-├── Models/
-├── Services/
-├── Support/
-├── Views/
-├── PowerMesh.entitlements
-├── PowerMeshWatch.entitlements
-└── PrivacyInfo.xcprivacy
-script/
-└── build_and_run.sh
-docs/
-├── ARCHITECTURE.md
-├── GETTING_STARTED.md
-├── LOCALIZATION.md
-├── TESTING.md
-└── TESTING.es.md
-.github/workflows/
-└── build.yml
+local battery / compatible BLE
+            ↓
+    BatteryDashboardStore
+      ↙             ↘
+App Group cache     private CloudKit
+     ↓                    ↓
+widgets/Watch       other PowerMesh installs
+complication
 ```
 
-## Quality status and roadmap
+PowerMesh doesn't claim continuous execution. Background opportunities are system-scheduled, so every reading exposes a timestamp and freshness state.
 
-Automated CI now builds macOS, iOS, and watchOS and runs deterministic core tests for snapshot staleness, CloudKit reconciliation rules, and language behavior. Physical-device CloudKit behavior still requires signed-device validation because unsigned CI cannot exercise a user's private iCloud container.
+## Accessory scope
 
-Next priorities:
+PowerMesh uses public APIs only. The BLE provider supports devices that publicly expose the standard Battery Service. This does **not guarantee** AirPods, Apple Pencil, or proprietary Apple accessory battery access because third-party apps don't receive a general public equivalent of Apple's Batteries widget.
 
-1. Complete a signed physical-device test matrix for iPhone/iPad ↔ Mac ↔ Apple Watch CloudKit synchronization.
-2. Add CloudKit subscriptions and opportunistic background refresh.
-3. Add WidgetKit for iPhone, iPad, and macOS.
-4. Add an Apple Watch complication.
-5. Add battery history and low-battery alerts.
-6. Add public BLE accessory support where technically available.
+## What now requires a real test
+
+1. Provision `iCloud.com.tiburonns.PowerMesh` and `group.com.tiburonns.PowerMesh`.
+2. Signed iPhone/iPad ↔ Mac ↔ Apple Watch synchronization.
+3. Silent CloudKit push delivery and background refresh timing.
+4. Installed widget/App Group and Watch complication data sharing.
+5. Low-battery notification delivery.
+6. Bluetooth permission and a real compatible Battery-Service accessory.
+7. Long-run history/trend and freshness transitions.
+
+See `docs/TESTING.md`.
 
 ## Privacy
 
-The design uses the user's private CloudKit database and does not require a custom PowerMesh account or external PowerMesh server. Snapshots contain an installation ID, user-selected device name, device category, battery value, charging state, source, and timestamp.
-
-PowerMesh does not intentionally store Apple IDs, IMEI values, serial numbers, or private hardware identifiers.
+No custom PowerMesh account or external PowerMesh server is required. Synced records contain a random installation ID, visible device name, category, battery value/state, source, and timestamp. PowerMesh doesn't intentionally store Apple IDs, IMEI values, serial numbers, or private hardware identifiers.
 
 ---
 
 # Español
 
-## Estado actual
+## Estado
 
-> **`main` actual: 0.1.5 (build 6).** Es una compilación activa de desarrollo; la validación física de CloudKit sigue formando parte del proceso de aceptación.
-
-PowerMesh ahora se entrega como un **proyecto real de Xcode que puedes clonar**.
-
-```bash
-git clone https://github.com/tiburonns/PowerMesh.git
-cd PowerMesh
-open PowerMesh.xcodeproj
-```
-
-No necesitas crear manualmente el proyecto ni los targets.
+> **`main` actual: 0.2.0 (build 7).** Funcionalmente completo para la primera aceptación firmada del ecosistema. La puerta restante es validar en hardware real las capacidades aprovisionadas por Apple.
 
 ### Targets de Xcode
 
-- `PowerMesh`: iPhone, iPad y macOS nativo.
-- `PowerMeshWatch`: Apple Watch.
+- `PowerMesh` — iPhone, iPad y macOS nativo.
+- `PowerMeshWatch` — Apple Watch.
+- `PowerMeshWidgets` — widgets de iPhone/iPad/macOS y complications modernas de Apple Watch.
+- `PowerMesh Local` — pruebas sin CloudKit/App Group antes del aprovisionamiento con equipo de pago.
 
-### Funciones actuales del MVP
+## Implementado en 0.2
 
-- Batería local de iPhone / iPad mediante `UIDevice`.
-- Batería local de Apple Watch mediante `WKInterfaceDevice`.
-- Batería de Mac mediante IOKit / `IOPowerSources`.
-- Macs de escritorio representadas como dispositivos con alimentación externa y sin batería interna.
-- Modelo de snapshots en CloudKit privado para sincronización entre dispositivos.
-- Identidad estable por dispositivo guardada en Keychain, con migración automática desde IDs anteriores en UserDefaults.
-- Reconciliación determinista que mantiene al dispositivo actual como fuente autoritativa y elimina duplicados remotos de CloudKit.
-- Límite de CloudKit inyectable con pruebas deterministas de fallos; los snapshots de batería inválidos se rechazan antes de subir y se ignoran al decodificar.
-- Limpieza desde Ajustes de snapshots obsoletos de dispositivos remotos.
-- Dashboard SwiftUI compartido.
-- Vista de barra de menús en macOS.
-- Indicador de datos antiguos en lugar de presentar snapshots viejos como información en tiempo real.
-- Selector de idioma con **Sistema**, **English** y **Español**.
-- Documentación de GitHub bilingüe en inglés y español.
+- Batería local mediante `UIDevice`, `WKInterfaceDevice` e IOKit / `IOPowerSources`.
+- Identidad estable por instalación en Keychain.
+- Sincronización privada `BatterySnapshot` con CloudKit y cambios mediante `CKQuerySubscription`.
+- `BGAppRefreshTask` en iOS y app-refresh propio de watchOS.
+- Caché App Group persistente: `group.com.tiburonns.PowerMesh`.
+- Widgets WidgetKit para iPhone, iPad y Mac, además de complications de Watch.
+- Estados En vivo / Reciente / Desactualizado / Sin conexión.
+- Historial de siete días y tendencia en porcentaje/hora.
+- Alertas configurables por batería baja.
+- Dashboard de barra de menús en macOS.
+- Soporte opcional para Battery Service público de CoreBluetooth (`180F` / `2A19`).
+- Modos **Sistema / English / Español**, incluida la localización de widgets y permiso Bluetooth.
+- Privacy Manifest y validación del contrato de release.
 
-## Primera prueba
-
-Para una prueba rápida de compilación/interfaz, abre `PowerMesh.xcodeproj`, selecciona el esquema `PowerMesh` y ejecútalo en **My Mac** o en un simulador de iPhone/iPad.
-
-En macOS también puedes ejecutar:
-
-```bash
-bash script/build_and_run.sh
-```
-
-El script compila sin firma, por lo que CloudKit no debe esperarse que funcione durante esa prueba sin firma.
-
-Para la configuración completa de firma, CloudKit, Watch y dispositivos físicos consulta:
-
-**`docs/GETTING_STARTED.md`** y la puerta de release en dispositivos firmados de **`docs/TESTING.es.md`**
-
-## Sincronización real entre dispositivos
-
-Para que iPhone, iPad, Mac y Apple Watch publiquen en el mismo dashboard de batería, configura ambos targets con el mismo equipo de Apple Developer y el mismo contenedor privado de CloudKit.
-
-El repositorio incluye los archivos de entitlements utilizados por los targets:
-
-- `PowerMesh/PowerMesh.entitlements`
-- `PowerMesh/PowerMeshWatch.entitlements`
-
-Contenedor configurado:
-
-`iCloud.com.tiburonns.PowerMesh`
-
-El proyecto Xcode conecta estos entitlements a los targets principal y de Watch. Las pruebas de compilación sin firma pueden seguir usando `CODE_SIGNING_ALLOWED=NO`, pero la sincronización de CloudKit requiere firma/provisioning válidos y el contenedor de iCloud configurado en dispositivos físicos.
-
-## Registro de CloudKit
-
-Record type: `BatterySnapshot`
-
-Campos:
-
-- `deviceID`: String
-- `deviceName`: String
-- `kind`: String
-- `level`: Number opcional
-- `chargeState`: String
-- `updatedAt`: Date/Time
-- `source`: String
-
-Cada dispositivo usa un UUID estable guardado en Keychain y publica un registro `device-<UUID>` en la base privada de CloudKit del usuario. Los IDs existentes de UserDefaults se migran automáticamente.
-
-## Política de idiomas
-
-La app siempre debe ofrecer:
-
-1. **Sistema**
-2. **English**
-3. **Español**
-
-Todos los textos visibles pasan por `PowerMesh/Support/AppLanguage.swift`. Actualmente inglés funciona como idioma alternativo para idiomas del sistema todavía no soportados.
-
-Toda la documentación propia del proyecto en GitHub debe mantenerse en inglés y español. Consulta `docs/LOCALIZATION.md`.
-
-## Limitación importante con accesorios
-
-PowerMesh no utiliza APIs privadas de Apple. AirPods, Apple Pencil y algunos otros accesorios Apple no exponen una API pública general que permita a aplicaciones de terceros obtener todos los valores que aparecen en el widget Baterías de Apple.
-
-Más adelante podremos agregar un proveedor CoreBluetooth para accesorios BLE que expongan públicamente características de batería.
-
-## Estructura del repositorio
+## Flujo
 
 ```text
-PowerMesh.xcodeproj/
-PowerMesh/
-├── App/
-├── Models/
-├── Services/
-├── Support/
-├── Views/
-├── PowerMesh.entitlements
-└── PowerMeshWatch.entitlements
-script/
-└── build_and_run.sh
-docs/
-├── ARCHITECTURE.md
-├── GETTING_STARTED.md
-├── LOCALIZATION.md
-├── TESTING.md
-└── TESTING.es.md
-.github/workflows/
-└── build.yml
+batería local / BLE compatible
+            ↓
+    BatteryDashboardStore
+      ↙             ↘
+caché App Group     CloudKit privado
+     ↓                    ↓
+widgets/Watch       otras instalaciones
+complication
 ```
 
-## Estado de calidad y próximos pasos
+PowerMesh no promete ejecución continua. El sistema concede las oportunidades de segundo plano; por eso cada lectura muestra timestamp y vigencia.
 
-El CI automatizado ya compila macOS, iOS y watchOS y ejecuta pruebas deterministas de antigüedad de snapshots, reglas de reconciliación de CloudKit e idioma. El comportamiento real de CloudKit todavía requiere validación firmada en dispositivos físicos porque el CI sin firma no puede ejercer el contenedor privado de iCloud de un usuario.
+## Alcance de accesorios
 
-Prioridades siguientes:
+PowerMesh usa solo APIs públicas. El proveedor BLE funciona con dispositivos que exponen públicamente Battery Service. Esto **no garantiza** acceso a AirPods, Apple Pencil ni accesorios propietarios, porque no existe para terceros un equivalente público general del widget Baterías de Apple.
 
-1. Completar una matriz de pruebas firmadas en dispositivos físicos para la sincronización iPhone/iPad ↔ Mac ↔ Apple Watch.
-2. Agregar suscripciones de CloudKit y actualización oportunista en segundo plano.
-3. Agregar WidgetKit para iPhone, iPad y macOS.
-4. Agregar complication para Apple Watch.
-5. Agregar historial de batería y alertas de batería baja.
-6. Agregar soporte para accesorios BLE mediante APIs públicas cuando sea técnicamente posible.
+## Lo que ya exige una prueba real
+
+1. Aprovisionar `iCloud.com.tiburonns.PowerMesh` y `group.com.tiburonns.PowerMesh`.
+2. Sincronización firmada iPhone/iPad ↔ Mac ↔ Apple Watch.
+3. Pushes silenciosos de CloudKit y ritmo real de segundo plano.
+4. App Group desde widgets instalados y complication de Watch.
+5. Entrega de alertas de batería baja.
+6. Permiso Bluetooth y un accesorio real compatible.
+7. Historial/tendencia prolongados y transiciones de vigencia.
+
+Consulta `docs/TESTING.es.md`.
 
 ## Privacidad
 
-El diseño utiliza la base privada de CloudKit del usuario y no requiere una cuenta propia de PowerMesh ni un servidor externo de PowerMesh. Los snapshots contienen un ID de instalación, nombre elegido por el usuario, categoría del dispositivo, valor de batería, estado de carga, fuente y timestamp.
-
-PowerMesh no almacena intencionalmente Apple IDs, IMEI, números de serie ni identificadores privados del hardware.
+No requiere cuenta PowerMesh ni servidor externo propio. Los registros contienen ID aleatorio de instalación, nombre visible, categoría, nivel/estado de batería, fuente y timestamp. PowerMesh no almacena intencionalmente Apple ID, IMEI, números de serie ni identificadores privados de hardware.
