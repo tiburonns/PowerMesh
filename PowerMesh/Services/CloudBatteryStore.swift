@@ -55,9 +55,7 @@ actor CloudBatteryStore: BatteryCloudStore {
             throw CloudBatteryStoreError.iCloudUnavailable
         }
 
-        let createdDatabase = CKContainer(
-            identifier: Self.containerIdentifier
-        ).privateCloudDatabase
+        let createdDatabase = CKContainer.default().privateCloudDatabase
         database = createdDatabase
         return createdDatabase
     }
