@@ -4,6 +4,8 @@
 <dict>
     <key>com.apple.developer.aps-environment</key>
     <string>development</string>
+    <key>com.apple.developer.icloud-container-environment</key>
+    <string>Development</string>
     <key>com.apple.developer.icloud-container-identifiers</key>
     <array>
         <string>iCloud.com.tiburonns.PowerMesh</string>
@@ -16,5 +18,11 @@
     <array>
         <string>group.com.tiburonns.PowerMesh</string>
     </array>
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.device.bluetooth</key>
+    <true/>
 </dict>
 </plist>

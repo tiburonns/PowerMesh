@@ -90,9 +90,10 @@ final class AccessoryBatteryScanner: NSObject {
         let rawLanguage = UserDefaults.standard.string(forKey: AppLanguage.storageKey)
         let language = rawLanguage.flatMap(AppLanguage.init(rawValue:)) ?? .system
         let fallbackName = language.text(.bluetoothAccessoryDefaultName)
+        let displayName = name.flatMap { $0.isEmpty ? nil : $0 } ?? fallbackName
         let snapshot = BatterySnapshot(
             id: "ble-\(peripheral.identifier.uuidString.lowercased())",
-            name: (name?.isEmpty == false ? name! : fallbackName),
+            name: displayName,
             kind: .accessory,
             level: safeLevel,
             state: .unknown,

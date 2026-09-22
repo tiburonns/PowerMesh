@@ -38,18 +38,26 @@ if not testing_es.startswith(f"# PowerMesh {version} "):
 
 # Main/Watch CloudKit + App Group.
 main_entitlements = load(ROOT / "PowerMesh/PowerMesh.entitlements")
+main_release_entitlements = load(ROOT / "PowerMesh/PowerMeshRelease.entitlements")
 watch_entitlements = load(ROOT / "PowerMesh/PowerMeshWatch.entitlements")
+watch_release_entitlements = load(ROOT / "PowerMesh/PowerMeshWatchRelease.entitlements")
 mac_entitlements = load(ROOT / "PowerMesh/PowerMeshMac.entitlements")
+mac_release_entitlements = load(ROOT / "PowerMesh/PowerMeshMacRelease.entitlements")
 widget_entitlements = load(ROOT / "PowerMeshWidgets/PowerMeshWidgets.entitlements")
+widget_mac_entitlements = load(ROOT / "PowerMeshWidgets/PowerMeshWidgetsMac.entitlements")
+watch_widget_entitlements = load(ROOT / "PowerMeshWidgets/PowerMeshWatchWidgets.entitlements")
 
 expected_container = ["iCloud.com.tiburonns.PowerMesh"]
 expected_services = ["CloudKit"]
 expected_group = ["group.com.tiburonns.PowerMesh"]
 
 for label, entitlements in [
-    ("main", main_entitlements),
-    ("watch", watch_entitlements),
-    ("mac", mac_entitlements),
+    ("main-debug", main_entitlements),
+    ("main-release", main_release_entitlements),
+    ("watch-debug", watch_entitlements),
+    ("watch-release", watch_release_entitlements),
+    ("mac-debug", mac_entitlements),
+    ("mac-release", mac_release_entitlements),
 ]:
     if entitlements.get("com.apple.developer.icloud-container-identifiers") != expected_container:
         fail(f"CloudKit contract failed: {label} container mismatch")
@@ -58,22 +66,63 @@ for label, entitlements in [
     if entitlements.get("com.apple.security.application-groups") != expected_group:
         fail(f"App Group contract failed: {label} group mismatch")
 
-for label, entitlements in [("main", main_entitlements), ("watch", watch_entitlements)]:
-    if entitlements.get("aps-environment") not in {"development", "production"}:
-        fail(f"APNs contract failed: {label} aps-environment is missing")
+for label, entitlements, environment in [
+    ("main-debug", main_entitlements, "Development"),
+    ("watch-debug", watch_entitlements, "Development"),
+    ("mac-debug", mac_entitlements, "Development"),
+    ("main-release", main_release_entitlements, "Production"),
+    ("watch-release", watch_release_entitlements, "Production"),
+    ("mac-release", mac_release_entitlements, "Production"),
+]:
+    if entitlements.get("com.apple.developer.icloud-container-environment") != environment:
+        fail(f"CloudKit environment contract failed: {label} must use {environment}")
 
-if mac_entitlements.get("com.apple.developer.aps-environment") not in {"development", "production"}:
-    fail("APNs contract failed: macOS APNs entitlement is missing")
+for label, entitlements, environment in [
+    ("main-debug", main_entitlements, "development"),
+    ("watch-debug", watch_entitlements, "development"),
+    ("main-release", main_release_entitlements, "production"),
+    ("watch-release", watch_release_entitlements, "production"),
+]:
+    if entitlements.get("aps-environment") != environment:
+        fail(f"APNs contract failed: {label} must use {environment}")
+
+for label, entitlements, environment in [
+    ("mac-debug", mac_entitlements, "development"),
+    ("mac-release", mac_release_entitlements, "production"),
+]:
+    if entitlements.get("com.apple.developer.aps-environment") != environment:
+        fail(f"APNs contract failed: {label} must use {environment}")
+    for key in [
+        "com.apple.security.app-sandbox",
+        "com.apple.security.network.client",
+        "com.apple.security.device.bluetooth",
+    ]:
+        if entitlements.get(key) is not True:
+            fail(f"macOS sandbox contract failed: {label} missing {key}")
 
 if widget_entitlements.get("com.apple.security.application-groups") != expected_group:
     fail("App Group contract failed: widget group mismatch")
+if widget_mac_entitlements.get("com.apple.security.application-groups") != expected_group:
+    fail("App Group contract failed: macOS widget group mismatch")
+if widget_mac_entitlements.get("com.apple.security.app-sandbox") is not True:
+    fail("macOS widget sandbox contract failed")
+if watch_widget_entitlements.get("com.apple.security.application-groups") != expected_group:
+    fail("App Group contract failed: Watch widget group mismatch")
 
 for required in [
     "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMesh.entitlements;",
     "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMeshWatch.entitlements;",
+    "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMeshRelease.entitlements;",
+    "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMeshWatchRelease.entitlements;",
     '"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = PowerMesh/PowerMeshMac.entitlements;',
+    '"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = PowerMesh/PowerMeshMacRelease.entitlements;',
     "CODE_SIGN_ENTITLEMENTS = PowerMeshWidgets/PowerMeshWidgets.entitlements;",
+    '"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = PowerMeshWidgets/PowerMeshWidgetsMac.entitlements;',
+    "CODE_SIGN_ENTITLEMENTS = PowerMeshWidgets/PowerMeshWatchWidgets.entitlements;",
     "PowerMeshWidgets.appex",
+    "PowerMeshWatchWidgets.appex",
+    "name = PowerMeshWatchWidgets;",
+    "PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.watchkitapp.widgets;",
     "INFOPLIST_FILE = PowerMeshWidgets/Info.plist;",
     "PowerMeshWatch.app in Embed Watch Content",
     'name = "Embed Watch Content";',
@@ -136,6 +185,39 @@ if not isinstance(extension, dict):
 if extension.get("NSExtensionPointIdentifier") != "com.apple.widgetkit-extension":
     fail("widget contract failed: incorrect NSExtensionPointIdentifier")
 
+def config_block(config_id, config_name):
+    marker = f"{config_id} /* {config_name} */"
+    if marker not in project:
+        fail(f"Xcode target contract failed: missing {marker}")
+    return project.split(marker, 1)[1].split(f"name = {config_name};", 1)[0]
+
+for config_id, config_name in [
+    ("F31000000000000000000001", "Debug"),
+    ("F31000000000000000000003", "DebugLocal"),
+    ("F31000000000000000000002", "Release"),
+]:
+    block = config_block(config_id, config_name)
+    if "watchos" in block or "watchsimulator" in block:
+        fail("widget target contract failed: iOS/macOS widget target still declares watchOS")
+
+for config_id, config_name in [
+    ("F41000000000000000000001", "Debug"),
+    ("F41000000000000000000003", "DebugLocal"),
+    ("F41000000000000000000002", "Release"),
+]:
+    block = config_block(config_id, config_name)
+    if 'SUPPORTED_PLATFORMS = "watchos watchsimulator";' not in block:
+        fail("Watch widget target contract failed: dedicated target is not watchOS-only")
+    if "iphoneos" in block or "macosx" in block:
+        fail("Watch widget target contract failed: dedicated target leaks non-watch platforms")
+
+if "PowerMeshWatchWidgets.appex in Embed App Extensions" not in project:
+    fail("Watch widget target contract failed: Watch app does not embed dedicated widget extension")
+if "dependencies = (AA0000000000000000000001 /* PBXTargetDependency */);" not in project:
+    fail("Watch widget target contract failed: Watch app dependency is missing")
+if not (ROOT / "PowerMesh.xcodeproj/xcshareddata/xcschemes/PowerMeshWatchWidgets.xcscheme").exists():
+    fail("Watch widget target contract failed: shared scheme is missing")
+
 # DebugLocal must remain installable without paid CloudKit/App Group capabilities.
 if "POWERMESH_LOCAL_ONLY" not in project:
     fail("local-test contract failed: POWERMESH_LOCAL_ONLY is missing")
@@ -146,6 +228,7 @@ for config_id in [
     "F11000000000000000000003 /* DebugLocal */",
     "F21000000000000000000003 /* DebugLocal */",
     "F31000000000000000000003 /* DebugLocal */",
+    "F41000000000000000000003 /* DebugLocal */",
 ]:
     if config_id not in project:
         fail(f"local-test contract failed: missing {config_id}")
@@ -155,7 +238,7 @@ for config_id in [
 
 if "PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.local.watchkitapp;" not in project:
     fail("local-test contract failed: local Watch bundle identifier is missing")
-if '"PRODUCT_BUNDLE_IDENTIFIER[sdk=watchos*]" = com.tiburonns.PowerMesh.local.watchkitapp.widgets;' not in project:
+if "PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.local.watchkitapp.widgets;" not in project:
     fail("local-test contract failed: local Watch widget bundle identifier is missing")
 if not (ROOT / "PowerMesh.xcodeproj/xcshareddata/xcschemes/PowerMeshWatch Local.xcscheme").exists():
     fail("local-test contract failed: PowerMeshWatch Local scheme is missing")
@@ -252,7 +335,9 @@ if keys != spanish_keys:
     fail(f"localization contract failed: Spanish mismatch missing={sorted(keys-spanish_keys)} extra={sorted(spanish_keys-keys)}")
 
 if "PrivacyInfo.xcprivacy in Widget Resources" not in project:
-    fail("privacy contract failed: widget target must embed a PrivacyInfo.xcprivacy")
+    fail("privacy contract failed: iOS/macOS widget target must embed PrivacyInfo.xcprivacy")
+if "PrivacyInfo.xcprivacy in Watch Widget Resources" not in project:
+    fail("privacy contract failed: Watch widget target must embed PrivacyInfo.xcprivacy")
 
 privacy = load(ROOT / "PowerMesh/PrivacyInfo.xcprivacy")
 if privacy.get("NSPrivacyTracking") is not False:

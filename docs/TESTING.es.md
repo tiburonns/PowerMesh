@@ -10,7 +10,7 @@ Anota SHA, build, Team Apple Developer, entorno CloudKit, cuenta iCloud, modelo/
 
 ## 1. Firma y capacidades
 
-1. Usa el mismo Team para `PowerMesh`, `PowerMeshWatch` y `PowerMeshWidgets`.
+1. Usa el mismo Team para `PowerMesh`, `PowerMeshWatch`, `PowerMeshWidgets` y `PowerMeshWatchWidgets`.
 2. Aprovisiona `iCloud.com.tiburonns.PowerMesh`.
 3. Aprovisiona App Group `group.com.tiburonns.PowerMesh`.
 4. Confirma Background Modes de iOS: Background fetch y Remote notifications.
@@ -55,7 +55,7 @@ Pasa si las oportunidades concedidas mejoran la vigencia y PowerMesh nunca prese
 
 Añade widgets y una complication; cambia datos e idioma.
 
-Pasa si el App Group alimenta la extensión, los timelines se actualizan eventualmente y el contenido propio de PowerMesh está localizado.
+Pasa si el App Group alimenta ambas extensiones, sus timelines se actualizan eventualmente y el contenido propio de PowerMesh está localizado.
 
 ## 7. Historial y tendencia
 

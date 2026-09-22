@@ -11,13 +11,14 @@ PowerMesh is a multilingual SwiftUI battery dashboard for the Apple ecosystem. /
 
 ## Status
 
-> **Current `main`: 0.2.0 (build 7).** Feature-complete for the first signed ecosystem acceptance pass. The remaining release gate is physical-device validation of Apple-provisioned capabilities and real hardware behavior.
+> **Current `main`: 0.2.0 (build 8).** Feature-complete for the first signed ecosystem acceptance pass. The remaining release gate is physical-device validation of Apple-provisioned capabilities and real hardware behavior.
 
 ### Xcode targets
 
 - `PowerMesh` — iPhone, iPad, and native macOS.
 - `PowerMeshWatch` — Apple Watch.
-- `PowerMeshWidgets` — iPhone/iPad/macOS widgets and modern Apple Watch complications.
+- `PowerMeshWidgets` — iPhone/iPad/macOS widgets.
+- `PowerMeshWatchWidgets` — dedicated watchOS WidgetKit extension for modern Apple Watch complications.
 - `PowerMesh Local` — CloudKit/App Group-free iPhone/iPad/Mac smoke testing before paid-team provisioning.
 - `PowerMeshWatch Local` — matching CloudKit/App Group-free Watch smoke testing.
 
@@ -28,7 +29,7 @@ PowerMesh is a multilingual SwiftUI battery dashboard for the Apple ecosystem. /
 - Private CloudKit `BatterySnapshot` synchronization and `CKQuerySubscription` change notifications.
 - iOS `BGAppRefreshTask` and watchOS app-refresh paths.
 - Persistent App Group cache: `group.com.tiburonns.PowerMesh`.
-- WidgetKit widgets for iPhone, iPad, Mac, and Watch complications.
+- Separate WidgetKit targets for iPhone/iPad/macOS and Apple Watch complications, sharing the same rendering code.
 - Live / Recent / Stale / Offline freshness states.
 - Seven-day history and percent/hour trend estimation.
 - Configurable low-battery notifications.
@@ -78,13 +79,14 @@ No custom PowerMesh account or external PowerMesh server is required. Synced rec
 
 ## Estado
 
-> **`main` actual: 0.2.0 (build 7).** Funcionalmente completo para la primera aceptación firmada del ecosistema. La puerta restante es validar en hardware real las capacidades aprovisionadas por Apple.
+> **`main` actual: 0.2.0 (build 8).** Funcionalmente completo para la primera aceptación firmada del ecosistema. La puerta restante es validar en hardware real las capacidades aprovisionadas por Apple.
 
 ### Targets de Xcode
 
 - `PowerMesh` — iPhone, iPad y macOS nativo.
 - `PowerMeshWatch` — Apple Watch.
-- `PowerMeshWidgets` — widgets de iPhone/iPad/macOS y complications modernas de Apple Watch.
+- `PowerMeshWidgets` — widgets de iPhone/iPad/macOS.
+- `PowerMeshWatchWidgets` — extensión WidgetKit dedicada de watchOS para complications modernas de Apple Watch.
 - `PowerMesh Local` — pruebas iPhone/iPad/Mac sin CloudKit/App Group antes del aprovisionamiento con equipo de pago.
 - `PowerMeshWatch Local` — ruta equivalente para Apple Watch sin capabilities de pago.
 
@@ -95,7 +97,7 @@ No custom PowerMesh account or external PowerMesh server is required. Synced rec
 - Sincronización privada `BatterySnapshot` con CloudKit y cambios mediante `CKQuerySubscription`.
 - `BGAppRefreshTask` en iOS y app-refresh propio de watchOS.
 - Caché App Group persistente: `group.com.tiburonns.PowerMesh`.
-- Widgets WidgetKit para iPhone, iPad y Mac, además de complications de Watch.
+- Targets WidgetKit separados para iPhone/iPad/macOS y complications de Apple Watch, compartiendo el mismo código de presentación.
 - Estados En vivo / Reciente / Desactualizado / Sin conexión.
 - Historial de siete días y tendencia en porcentaje/hora.
 - Alertas configurables por batería baja.

@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(watchOS)
+import WatchKit
+#endif
 #if canImport(WidgetKit)
 import WidgetKit
 #endif

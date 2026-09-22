@@ -15,7 +15,7 @@ cd PowerMesh
 open PowerMesh.xcodeproj
 ```
 
-Targets: `PowerMesh`, `PowerMeshWatch`, `PowerMeshWidgets`. Minimums: iOS/iPadOS 17, macOS 14, watchOS 10.
+Targets: `PowerMesh`, `PowerMeshWatch`, `PowerMeshWidgets`, `PowerMeshWatchWidgets`. Minimums: iOS/iPadOS 17, macOS 14, watchOS 10.
 
 ## Before membership
 
@@ -23,9 +23,9 @@ Use **PowerMesh Local** for iPhone/iPad/Mac and **PowerMeshWatch Local** for App
 
 ## Signed ecosystem setup
 
-1. Select the same Apple Developer Team for `PowerMesh`, `PowerMeshWatch`, and `PowerMeshWidgets`.
+1. Select the same Apple Developer Team for `PowerMesh`, `PowerMeshWatch`, `PowerMeshWidgets`, and `PowerMeshWatchWidgets`.
 2. Enable CloudKit with `iCloud.com.tiburonns.PowerMesh` on app and Watch.
-3. Enable App Groups with `group.com.tiburonns.PowerMesh` on app, Watch, and widget extension.
+3. Enable App Groups with `group.com.tiburonns.PowerMesh` on the app, Watch app, `PowerMeshWidgets`, and `PowerMeshWatchWidgets`.
 4. Keep iOS Background Modes: **Background fetch** and **Remote notifications**.
 5. Let Xcode refresh provisioning.
 6. Install on iPhone/iPad, Mac, and Apple Watch using the same iCloud account.
@@ -55,7 +55,7 @@ cd PowerMesh
 open PowerMesh.xcodeproj
 ```
 
-Targets: `PowerMesh`, `PowerMeshWatch` y `PowerMeshWidgets`. Mínimos: iOS/iPadOS 17, macOS 14 y watchOS 10.
+Targets: `PowerMesh`, `PowerMeshWatch`, `PowerMeshWidgets` y `PowerMeshWatchWidgets`. Mínimos: iOS/iPadOS 17, macOS 14 y watchOS 10.
 
 ## Antes de la membresía
 
@@ -63,9 +63,9 @@ Usa **PowerMesh Local** para iPhone/iPad/Mac y **PowerMeshWatch Local** para App
 
 ## Configuración firmada
 
-1. Selecciona el mismo Team Apple Developer en `PowerMesh`, `PowerMeshWatch` y `PowerMeshWidgets`.
+1. Selecciona el mismo Team Apple Developer en `PowerMesh`, `PowerMeshWatch`, `PowerMeshWidgets` y `PowerMeshWatchWidgets`.
 2. Habilita CloudKit con `iCloud.com.tiburonns.PowerMesh` en app y Watch.
-3. Habilita App Groups con `group.com.tiburonns.PowerMesh` en app, Watch y widgets.
+3. Habilita App Groups con `group.com.tiburonns.PowerMesh` en la app, Watch, `PowerMeshWidgets` y `PowerMeshWatchWidgets`.
 4. Mantén Background Modes de iOS: **Background fetch** y **Remote notifications**.
 5. Deja que Xcode regenere el aprovisionamiento.
 6. Instala en iPhone/iPad, Mac y Apple Watch con la misma cuenta iCloud.

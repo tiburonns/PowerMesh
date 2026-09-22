@@ -10,7 +10,7 @@ Record commit SHA, build number, Apple Developer Team, CloudKit environment, iCl
 
 ## 1. Signing and capabilities
 
-1. Use the same Team for `PowerMesh`, `PowerMeshWatch`, and `PowerMeshWidgets`.
+1. Use the same Team for `PowerMesh`, `PowerMeshWatch`, `PowerMeshWidgets`, and `PowerMeshWatchWidgets`.
 2. Provision `iCloud.com.tiburonns.PowerMesh`.
 3. Provision App Group `group.com.tiburonns.PowerMesh`.
 4. Confirm iOS Background Modes include Background fetch and Remote notifications.
@@ -65,9 +65,9 @@ Pass: opportunistic refresh improves freshness when the system grants runtime; P
 1. Add small/medium/large widget where supported.
 2. Add a Watch complication.
 3. Change battery data and language in PowerMesh.
-4. Confirm the App Group cache reaches the extension and timeline reloads eventually.
+4. Confirm the App Group cache reaches both widget extensions and their timelines reload eventually.
 
-Pass: extension renders cached values without opening CloudKit directly and uses localized PowerMesh-owned copy.
+Pass: both extensions render cached values without opening CloudKit directly and use localized PowerMesh-owned copy.
 
 ## 7. History and trend
 

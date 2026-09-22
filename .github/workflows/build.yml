@@ -45,6 +45,10 @@ jobs:
             scheme: PowerMeshWidgets
             configuration: Debug
             destination: generic/platform=iOS Simulator
+          - name: Widget watchOS
+            scheme: PowerMeshWatchWidgets
+            configuration: Debug
+            destination: generic/platform=watchOS Simulator
     name: ${{ matrix.name }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -56,6 +60,11 @@ jobs:
           plutil -lint PowerMesh/PowerMeshWatch.entitlements
           plutil -lint PowerMesh/PowerMeshMac.entitlements
           plutil -lint PowerMeshWidgets/PowerMeshWidgets.entitlements
+          plutil -lint PowerMeshWidgets/PowerMeshWidgetsMac.entitlements
+          plutil -lint PowerMeshWidgets/PowerMeshWatchWidgets.entitlements
+          plutil -lint PowerMesh/PowerMeshMacRelease.entitlements
+          plutil -lint PowerMesh/PowerMeshWatchRelease.entitlements
+          plutil -lint PowerMesh/PowerMeshRelease.entitlements
           plutil -lint PowerMeshWidgets/Info.plist
       - name: Run core tests
         if: matrix.name == 'macOS'

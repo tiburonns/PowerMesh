@@ -42,7 +42,7 @@ iOS uses `BGAppRefreshTask` (`com.tiburonns.PowerMesh.refresh`). watchOS uses it
 
 ### Shared cache and WidgetKit
 
-Validated snapshots are written to `group.com.tiburonns.PowerMesh`. WidgetKit reads only this cache and never contacts CloudKit directly. Writes request timeline reloads. The widget extension supplies iPhone/iPad/macOS widgets and modern Watch complications.
+Validated snapshots are written to `group.com.tiburonns.PowerMesh`. WidgetKit reads only this cache and never contacts CloudKit directly. Writes request timeline reloads. `PowerMeshWidgets` supplies iPhone/iPad/macOS widgets. `PowerMeshWatchWidgets` is a separate watchOS extension for modern Watch complications. Both targets share the same Swift rendering code and localized resources.
 
 ### History, trends, alerts
 
@@ -95,7 +95,7 @@ iOS usa `BGAppRefreshTask` (`com.tiburonns.PowerMesh.refresh`), watchOS su ruta 
 
 ### Caché compartida y WidgetKit
 
-Los snapshots validados se guardan en `group.com.tiburonns.PowerMesh`. WidgetKit lee únicamente ese caché; no consulta CloudKit directamente. Las escrituras solicitan recargar timelines. La extensión sirve widgets de iPhone/iPad/macOS y complications modernas de Watch.
+Los snapshots validados se guardan en `group.com.tiburonns.PowerMesh`. WidgetKit lee únicamente ese caché; no consulta CloudKit directamente. Las escrituras solicitan recargar timelines. `PowerMeshWidgets` sirve widgets de iPhone/iPad/macOS. `PowerMeshWatchWidgets` es una extensión watchOS separada para complications modernas de Watch. Ambos targets comparten el mismo Swift de presentación y recursos localizados.
 
 ### Historial, tendencias y alertas
 
