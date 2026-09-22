@@ -38,6 +38,14 @@ struct DeviceDetailView: View {
                         }
                         .font(.caption2)
                         .foregroundStyle(.secondary)
+
+                        HStack {
+                            Text(language.text(.trend))
+                            Spacer()
+                            Text(trendText)
+                                .monospacedDigit()
+                        }
+                        .font(.caption)
                     }
                 }
                 .padding(16)
@@ -57,6 +65,23 @@ struct DeviceDetailView: View {
             .padding()
         }
         .navigationTitle(currentSnapshot.name)
+    }
+
+    private var trendText: String {
+        guard let trend = BatteryHistoryAnalyzer.trend(points: history) else {
+            return language.text(.insufficientData)
+        }
+
+        if trend.isStable {
+            return "≈ 0%/\(language.text(.hourShort))"
+        }
+
+        return String(
+            format: "%+.1f%%/%@",
+            locale: language.locale,
+            trend.percentPerHour,
+            language.text(.hourShort)
+        )
     }
 
     @ViewBuilder

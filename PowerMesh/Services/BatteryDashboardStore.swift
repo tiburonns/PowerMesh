@@ -109,8 +109,14 @@ final class BatteryDashboardStore: ObservableObject {
         let downloadSucceeded = await loadRemote()
         #if os(iOS)
         BackgroundRefreshCoordinator.schedule()
+        #elseif os(watchOS)
+        WatchBackgroundRefreshCoordinator.schedule()
         #endif
         return uploadSucceeded && downloadSucceeded
+    }
+
+    func refreshSharedPresentation() async {
+        await cache.save(snapshots)
     }
 
     func setAccessoryScanning(enabled: Bool) {

@@ -28,19 +28,21 @@ struct PowerMeshApp: App {
     }
 
     var body: some Scene {
+        #if os(watchOS)
         WindowGroup {
-            DashboardView()
-                .environmentObject(store)
-                .environment(\.appLanguage, selectedLanguage)
-                .environment(\.locale, selectedLanguage.locale)
-                .onChange(of: scenePhase) { _, phase in
-                    #if os(iOS)
-                    if phase == .background {
-                        BackgroundRefreshCoordinator.schedule()
-                    }
-                    #endif
-                }
+            dashboard
         }
+        .backgroundTask(.appRefresh(WatchBackgroundRefreshCoordinator.identifier)) { _ in
+            _ = await store.refreshForBackground()
+            await MainActor.run {
+                WatchBackgroundRefreshCoordinator.schedule()
+            }
+        }
+        #else
+        WindowGroup {
+            dashboard
+        }
+        #endif
 
         #if os(macOS)
         MenuBarExtra("PowerMesh", systemImage: "battery.100") {
@@ -50,5 +52,24 @@ struct PowerMeshApp: App {
                 .environment(\.locale, selectedLanguage.locale)
         }
         #endif
+    }
+
+    private var dashboard: some View {
+        DashboardView()
+            .environmentObject(store)
+            .environment(\.appLanguage, selectedLanguage)
+            .environment(\.locale, selectedLanguage.locale)
+            .onChange(of: languagePreference) { _, _ in
+                Task { await store.refreshSharedPresentation() }
+            }
+            .onChange(of: scenePhase) { _, phase in
+                if phase == .background {
+                    #if os(iOS)
+                    BackgroundRefreshCoordinator.schedule()
+                    #elseif os(watchOS)
+                    WatchBackgroundRefreshCoordinator.schedule()
+                    #endif
+                }
+            }
     }
 }

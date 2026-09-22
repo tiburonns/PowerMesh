@@ -59,3 +59,21 @@ enum BackgroundRefreshCoordinator {
     }
 }
 #endif
+
+#if os(watchOS)
+import WatchKit
+
+@MainActor
+enum WatchBackgroundRefreshCoordinator {
+    static let identifier = "powermesh-refresh"
+
+    static func schedule() {
+        WKApplication.shared().scheduleBackgroundRefresh(
+            withPreferredDate: Date(timeIntervalSinceNow: 15 * 60),
+            userInfo: identifier as NSString
+        ) { _ in
+            // watchOS owns the final execution time and budget.
+        }
+    }
+}
+#endif

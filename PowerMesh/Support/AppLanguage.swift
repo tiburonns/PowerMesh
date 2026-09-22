@@ -59,6 +59,7 @@ enum AppText: String, Hashable {
     case notificationPermissionDenied, syncSection, lastSync, never
     case backgroundSyncHelp, lowBatteryTitle
     case accessoriesSection, bluetoothAccessories, bluetoothAccessoriesHelp
+    case trend, insufficientData, hourShort
 
     fileprivate func value(for language: ResolvedAppLanguage) -> String {
         let table = language == .spanish ? Self.spanish : Self.english
@@ -119,7 +120,10 @@ enum AppText: String, Hashable {
         .lowBatteryTitle: "Low battery",
         .accessoriesSection: "Accessories",
         .bluetoothAccessories: "Compatible Bluetooth batteries",
-        .bluetoothAccessoriesHelp: "Scans only for nearby accessories that publicly expose the standard Bluetooth Battery Service. Compatibility is not guaranteed for AirPods, Apple Pencil, or proprietary accessories."
+        .bluetoothAccessoriesHelp: "Scans only for nearby accessories that publicly expose the standard Bluetooth Battery Service. Compatibility is not guaranteed for AirPods, Apple Pencil, or proprietary accessories.",
+        .trend: "Trend",
+        .insufficientData: "Collecting data",
+        .hourShort: "h"
     ]
 
     private static let spanish: [AppText: String] = [
@@ -176,7 +180,10 @@ enum AppText: String, Hashable {
         .lowBatteryTitle: "Batería baja",
         .accessoriesSection: "Accesorios",
         .bluetoothAccessories: "Baterías Bluetooth compatibles",
-        .bluetoothAccessoriesHelp: "Busca únicamente accesorios cercanos que exponen públicamente el servicio estándar de batería de Bluetooth. No se garantiza compatibilidad con AirPods, Apple Pencil ni accesorios propietarios."
+        .bluetoothAccessoriesHelp: "Busca únicamente accesorios cercanos que exponen públicamente el servicio estándar de batería de Bluetooth. No se garantiza compatibilidad con AirPods, Apple Pencil ni accesorios propietarios.",
+        .trend: "Tendencia",
+        .insufficientData: "Recopilando datos",
+        .hourShort: "h"
     ]
 }
 
