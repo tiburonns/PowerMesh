@@ -118,6 +118,17 @@ undefined_pbx_ids = sorted(pbx_ids - pbx_definitions)
 if undefined_pbx_ids:
     fail(f"Xcode project contract failed: undefined PBX IDs {undefined_pbx_ids}")
 
+for source_root in [ROOT / "PowerMesh", ROOT / "PowerMeshWidgets"]:
+    for source_path in source_root.rglob("*.swift"):
+        if source_path.name not in project:
+            fail(
+                "Xcode project contract failed: Swift source is not referenced "
+                f"by project: {source_path.relative_to(ROOT)}"
+            )
+
+if "WatchSettingsView.swift in Sources" not in project:
+    fail("Watch target contract failed: WatchSettingsView.swift is not in the Watch sources phase")
+
 widget_info = load(ROOT / "PowerMeshWidgets/Info.plist")
 extension = widget_info.get("NSExtension")
 if not isinstance(extension, dict):

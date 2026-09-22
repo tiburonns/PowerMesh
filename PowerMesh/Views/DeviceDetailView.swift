@@ -100,6 +100,8 @@ struct DeviceDetailView: View {
 private struct BatteryHistoryChart: View {
     let points: [BatteryHistoryPoint]
 
+    @Environment(\.appLanguage) private var language
+
     private var visiblePoints: [BatteryHistoryPoint] {
         let cutoff = Date().addingTimeInterval(-24 * 60 * 60)
         let recent = points.filter { $0.date >= cutoff }
