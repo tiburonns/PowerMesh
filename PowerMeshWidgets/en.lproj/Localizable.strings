@@ -1,3 +1,5 @@
 "widget.name" = "PowerMesh Batteries";
 "widget.description" = "Shows cached battery status for your PowerMesh devices.";
 "widget.openPowerMesh" = "Open PowerMesh";
+"widget.stale" = "Stale";
+"widget.offline" = "Offline";

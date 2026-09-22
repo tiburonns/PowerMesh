@@ -2,6 +2,13 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
+private enum WidgetFreshness {
+    case live
+    case recent
+    case stale
+    case offline
+}
+
 private struct WidgetBatterySnapshot: Codable, Hashable, Identifiable {
     let id: String
     let name: String
@@ -10,6 +17,16 @@ private struct WidgetBatterySnapshot: Codable, Hashable, Identifiable {
     let state: String
     let updatedAt: Date
     let source: String
+
+    func freshness(at now: Date) -> WidgetFreshness {
+        let age = max(0, now.timeIntervalSince(updatedAt))
+        switch age {
+        case ..<(5 * 60): return .live
+        case ..<(30 * 60): return .recent
+        case ..<(2 * 60 * 60): return .stale
+        default: return .offline
+        }
+    }
 }
 
 private struct BatteryWidgetEntry: TimelineEntry {
@@ -98,6 +115,10 @@ private struct BatteryOverviewWidgetView: View {
                 inline
             case .accessoryRectangular:
                 rectangular
+            #if os(watchOS)
+            case .accessoryCorner:
+                corner
+            #endif
             default:
                 systemWidget
             }
@@ -124,11 +145,33 @@ private struct BatteryOverviewWidgetView: View {
         return bundle.localizedString(forKey: key, value: key, table: nil)
     }
 
+    private func staleLabel(for snapshot: WidgetBatterySnapshot) -> String? {
+        switch snapshot.freshness(at: entry.date) {
+        case .live, .recent:
+            return nil
+        case .stale:
+            return localized("widget.stale")
+        case .offline:
+            return localized("widget.offline")
+        }
+    }
+
+    private func statusIcon(for snapshot: WidgetBatterySnapshot) -> String? {
+        switch snapshot.freshness(at: entry.date) {
+        case .live, .recent:
+            return nil
+        case .stale:
+            return "clock.badge.exclamationmark"
+        case .offline:
+            return "exclamationmark.circle"
+        }
+    }
+
     @ViewBuilder
     private var circular: some View {
         if let snapshot = first, let level = snapshot.level {
             Gauge(value: Double(level), in: 0...100) {
-                Image(systemName: icon(for: snapshot.kind))
+                Image(systemName: statusIcon(for: snapshot) ?? icon(for: snapshot.kind))
             } currentValueLabel: {
                 Text("\(level)")
                     .font(.caption2)
@@ -142,7 +185,8 @@ private struct BatteryOverviewWidgetView: View {
     @ViewBuilder
     private var inline: some View {
         if let snapshot = first {
-            Text("\(snapshot.name) \(snapshot.level.map { "\($0)%" } ?? "—")")
+            let suffix = staleLabel(for: snapshot).map { " · \($0)" } ?? ""
+            Text("\(snapshot.name) \(snapshot.level.map { "\($0)%" } ?? "—")\(suffix)")
         } else {
             Text(emptyText)
         }
@@ -156,7 +200,7 @@ private struct BatteryOverviewWidgetView: View {
             VStack(alignment: .leading, spacing: 2) {
                 ForEach(entry.snapshots.prefix(2)) { snapshot in
                     HStack {
-                        Image(systemName: icon(for: snapshot.kind))
+                        Image(systemName: statusIcon(for: snapshot) ?? icon(for: snapshot.kind))
                         Text(snapshot.name)
                             .lineLimit(1)
                         Spacer()
@@ -168,6 +212,22 @@ private struct BatteryOverviewWidgetView: View {
             .font(.caption)
         }
     }
+
+    #if os(watchOS)
+    @ViewBuilder
+    private var corner: some View {
+        if let snapshot = first {
+            Text(snapshot.level.map { "\($0)%" } ?? "—")
+                .widgetLabel(
+                    staleLabel(for: snapshot)
+                    ?? snapshot.name
+                )
+        } else {
+            Image(systemName: "battery.0")
+                .widgetLabel(emptyText)
+        }
+    }
+    #endif
 
     @ViewBuilder
     private var systemWidget: some View {
@@ -183,10 +243,17 @@ private struct BatteryOverviewWidgetView: View {
             } else {
                 ForEach(entry.snapshots.prefix(maxItems)) { snapshot in
                     HStack(spacing: 6) {
-                        Image(systemName: icon(for: snapshot.kind))
+                        Image(systemName: statusIcon(for: snapshot) ?? icon(for: snapshot.kind))
                             .frame(width: 18)
-                        Text(snapshot.name)
-                            .lineLimit(1)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(snapshot.name)
+                                .lineLimit(1)
+                            if let stale = staleLabel(for: snapshot) {
+                                Text(stale)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                         Spacer()
                         Text(snapshot.level.map { "\($0)%" } ?? "—")
                             .fontWeight(.semibold)
@@ -240,7 +307,12 @@ struct BatteryOverviewWidget: Widget {
 
     private var supportedFamilies: [WidgetFamily] {
         #if os(watchOS)
-        return [.accessoryCircular, .accessoryRectangular, .accessoryInline]
+        return [
+            .accessoryCircular,
+            .accessoryRectangular,
+            .accessoryInline,
+            .accessoryCorner
+        ]
         #elseif os(macOS)
         return [.systemSmall, .systemMedium, .systemLarge]
         #else

@@ -167,6 +167,18 @@ for path in [
 widget_swift = (ROOT / "PowerMeshWidgets/BatteryOverviewWidget.swift").read_text(encoding="utf-8")
 if '"Open PowerMesh"' in widget_swift or '"Abre PowerMesh"' in widget_swift:
     fail("localization contract failed: translated widget copy is hard-coded in Swift")
+for required in [".accessoryCorner", "widget.stale", "widget.offline"]:
+    if required not in widget_swift:
+        fail(f"widget contract failed: missing {required}")
+
+for locale_path in [
+    ROOT / "PowerMeshWidgets/en.lproj/Localizable.strings",
+    ROOT / "PowerMeshWidgets/es.lproj/Localizable.strings",
+]:
+    widget_strings = locale_path.read_text(encoding="utf-8")
+    for key in ["widget.stale", "widget.offline"]:
+        if f'"{key}"' not in widget_strings:
+            fail(f"widget localization contract failed: {key} missing from {locale_path.name}")
 
 # Verify every AppText key is present in both tables.
 language_source = (ROOT / "PowerMesh/Support/AppLanguage.swift").read_text(encoding="utf-8")
