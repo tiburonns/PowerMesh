@@ -14,12 +14,19 @@ jobs:
         include:
           - name: macOS
             scheme: PowerMesh
+            configuration: Debug
             destination: generic/platform=macOS
           - name: iOS
             scheme: PowerMesh
+            configuration: Debug
+            destination: generic/platform=iOS Simulator
+          - name: iOS Local
+            scheme: PowerMesh Local
+            configuration: DebugLocal
             destination: generic/platform=iOS Simulator
           - name: watchOS
             scheme: PowerMeshWatch
+            configuration: Debug
             destination: generic/platform=watchOS Simulator
     name: ${{ matrix.name }}
     steps:
@@ -38,7 +45,7 @@ jobs:
           xcodebuild \
             -project PowerMesh.xcodeproj \
             -scheme "${{ matrix.scheme }}" \
-            -configuration Debug \
+            -configuration "${{ matrix.configuration }}" \
             -destination '${{ matrix.destination }}' \
             CODE_SIGNING_ALLOWED=NO \
             build
