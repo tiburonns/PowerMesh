@@ -21,6 +21,25 @@ protocol BatteryCloudStore: Sendable {
     func fetchAll() async throws -> [BatterySnapshot]
 }
 
+#if POWERMESH_LOCAL_ONLY
+actor CloudBatteryStore: BatteryCloudStore {
+    static let recordType = "BatterySnapshot"
+    static let containerIdentifier = "iCloud.com.tiburonns.PowerMesh"
+
+    func upsert(_ snapshot: BatterySnapshot) async throws {
+        // Intentionally disabled in the Local test configuration.
+        // The local battery snapshot is still kept in BatteryDashboardStore.
+    }
+
+    func delete(deviceID: String) async throws {
+        // No remote data exists in the Local test configuration.
+    }
+
+    func fetchAll() async throws -> [BatterySnapshot] {
+        []
+    }
+}
+#else
 actor CloudBatteryStore: BatteryCloudStore {
     static let recordType = "BatterySnapshot"
     static let containerIdentifier = "iCloud.com.tiburonns.PowerMesh"
@@ -163,3 +182,5 @@ actor CloudBatteryStore: BatteryCloudStore {
         return snapshot.isValidForSync ? snapshot : nil
     }
 }
+
+#endif
