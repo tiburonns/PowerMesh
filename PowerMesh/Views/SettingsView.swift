@@ -8,6 +8,7 @@ struct SettingsView: View {
     @AppStorage(AppLanguage.storageKey) private var languagePreference = AppLanguage.system.rawValue
     @AppStorage(BatteryAlertSettings.enabledKey) private var lowBatteryAlerts = false
     @AppStorage(BatteryAlertSettings.thresholdKey) private var lowBatteryThreshold = BatteryAlertSettings.defaultThreshold
+    @AppStorage(AccessoryBatterySettings.enabledKey) private var bluetoothAccessories = false
     @State private var draftName = ""
     @State private var notificationPermissionDenied = false
 
@@ -32,6 +33,16 @@ struct SettingsView: View {
                 Section(language.text(.thisDevice)) {
                     TextField(language.text(.name), text: $draftName)
                     Text(language.text(.deviceNameHelp))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section(language.text(.accessoriesSection)) {
+                    Toggle(
+                        language.text(.bluetoothAccessories),
+                        isOn: $bluetoothAccessories
+                    )
+                    Text(language.text(.bluetoothAccessoriesHelp))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -111,6 +122,9 @@ struct SettingsView: View {
                 }
             }
             .onAppear { draftName = store.localDeviceName }
+            .onChange(of: bluetoothAccessories) { _, enabled in
+                store.setAccessoryScanning(enabled: enabled)
+            }
             .onChange(of: lowBatteryAlerts) { _, enabled in
                 guard enabled else { return }
                 Task {

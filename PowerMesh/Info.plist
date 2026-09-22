@@ -24,6 +24,8 @@
     <array>
         <string>com.tiburonns.PowerMesh.refresh</string>
     </array>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>PowerMesh uses Bluetooth only to read battery levels exposed by compatible accessories.</string>
     <key>UIBackgroundModes</key>
     <array>
         <string>fetch</string>

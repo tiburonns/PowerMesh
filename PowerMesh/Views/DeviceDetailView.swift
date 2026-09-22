@@ -108,6 +108,6 @@ private struct BatteryHistoryChart: View {
             )
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Battery history")
+        .accessibilityLabel(language.text(.batteryHistory))
     }
 }

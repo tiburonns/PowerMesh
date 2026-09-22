@@ -58,6 +58,7 @@ enum AppText: String, Hashable {
     case alertsSection, lowBatteryAlerts, lowBatteryAlertsHelp, lowBatteryThreshold
     case notificationPermissionDenied, syncSection, lastSync, never
     case backgroundSyncHelp, lowBatteryTitle
+    case accessoriesSection, bluetoothAccessories, bluetoothAccessoriesHelp
 
     fileprivate func value(for language: ResolvedAppLanguage) -> String {
         let table = language == .spanish ? Self.spanish : Self.english
@@ -115,7 +116,10 @@ enum AppText: String, Hashable {
         .lastSync: "Last successful sync",
         .never: "Never",
         .backgroundSyncHelp: "Background refresh and CloudKit pushes are opportunistic. PowerMesh always shows when each reading was last updated.",
-        .lowBatteryTitle: "Low battery"
+        .lowBatteryTitle: "Low battery",
+        .accessoriesSection: "Accessories",
+        .bluetoothAccessories: "Compatible Bluetooth batteries",
+        .bluetoothAccessoriesHelp: "Scans only for nearby accessories that publicly expose the standard Bluetooth Battery Service. Compatibility is not guaranteed for AirPods, Apple Pencil, or proprietary accessories."
     ]
 
     private static let spanish: [AppText: String] = [
@@ -169,7 +173,10 @@ enum AppText: String, Hashable {
         .lastSync: "Última sincronización correcta",
         .never: "Nunca",
         .backgroundSyncHelp: "La actualización en segundo plano y los avisos de CloudKit son oportunistas. PowerMesh siempre muestra cuándo se actualizó por última vez cada lectura.",
-        .lowBatteryTitle: "Batería baja"
+        .lowBatteryTitle: "Batería baja",
+        .accessoriesSection: "Accesorios",
+        .bluetoothAccessories: "Baterías Bluetooth compatibles",
+        .bluetoothAccessoriesHelp: "Busca únicamente accesorios cercanos que exponen públicamente el servicio estándar de batería de Bluetooth. No se garantiza compatibilidad con AirPods, Apple Pencil ni accesorios propietarios."
     ]
 }
 

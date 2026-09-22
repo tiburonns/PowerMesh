@@ -27,6 +27,7 @@ final class BatteryDashboardStore: ObservableObject {
     private let remoteRefreshInterval: TimeInterval
     private let cache: SnapshotCache
     private let historyStore: BatteryHistoryStore
+    private let accessoryScanner: AccessoryBatteryScanner
 
     private var reportingTask: Task<Void, Never>?
     private var lastPublished: BatterySnapshot?
@@ -38,13 +39,15 @@ final class BatteryDashboardStore: ObservableObject {
         batteryReader: any BatteryReading = LocalBatteryReader(),
         remoteRefreshInterval: TimeInterval = 5 * 60,
         cache: SnapshotCache = SnapshotCache(),
-        historyStore: BatteryHistoryStore = BatteryHistoryStore()
+        historyStore: BatteryHistoryStore = BatteryHistoryStore(),
+        accessoryScanner: AccessoryBatteryScanner = AccessoryBatteryScanner()
     ) {
         self.cloud = cloud
         self.batteryReader = batteryReader
         self.remoteRefreshInterval = remoteRefreshInterval
         self.cache = cache
         self.historyStore = historyStore
+        self.accessoryScanner = accessoryScanner
     }
 
     deinit {
@@ -57,6 +60,13 @@ final class BatteryDashboardStore: ObservableObject {
         PowerMeshBackgroundRouter.shared.install { [weak self] in
             guard let self else { return false }
             return await self.refreshForBackground()
+        }
+
+        accessoryScanner.onSnapshot = { [weak self] snapshot in
+            self?.ingestAccessory(snapshot)
+        }
+        if accessoryScanner.isEnabled {
+            accessoryScanner.start()
         }
 
         reportingTask = Task { [weak self] in
@@ -86,6 +96,10 @@ final class BatteryDashboardStore: ObservableObject {
         isRefreshing = true
         defer { isRefreshing = false }
 
+        if accessoryScanner.isEnabled {
+            accessoryScanner.rescan()
+        }
+
         _ = await reportLocalIfNeeded(force: forceUpload)
         _ = await loadRemote()
     }
@@ -97,6 +111,15 @@ final class BatteryDashboardStore: ObservableObject {
         BackgroundRefreshCoordinator.schedule()
         #endif
         return uploadSucceeded && downloadSucceeded
+    }
+
+    func setAccessoryScanning(enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: AccessoryBatterySettings.enabledKey)
+        if enabled {
+            accessoryScanner.start()
+        } else {
+            accessoryScanner.stop()
+        }
     }
 
     func renameLocalDevice(to newName: String) async {
@@ -192,6 +215,25 @@ final class BatteryDashboardStore: ObservableObject {
             await persistObservedState()
             syncIssue = issue(for: error)
             return false
+        }
+    }
+
+    private func ingestAccessory(_ snapshot: BatterySnapshot) {
+        merge(snapshot)
+
+        Task { [weak self] in
+            guard let self else { return }
+            await self.persistObservedState()
+
+            do {
+                try await self.cloud.upsert(snapshot)
+                self.syncIssue = nil
+            } catch let error as CloudBatteryStoreError
+                where error == .iCloudUnavailable {
+                // Keep the local accessory reading even when CloudKit is unavailable.
+            } catch {
+                self.syncIssue = self.issue(for: error)
+            }
         }
     }
 

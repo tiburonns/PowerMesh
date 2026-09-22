@@ -12,6 +12,7 @@ xcrun swiftc -parse-as-library \
   "$repo_root/PowerMesh/Models/BatteryHistory.swift" \
   "$repo_root/PowerMesh/Models/BatterySnapshot.swift" \
   "$repo_root/PowerMesh/Services/PowerMeshStorage.swift" \
+  "$repo_root/PowerMesh/Services/AccessoryBatteryScanner.swift" \
   "$repo_root/PowerMesh/Services/BatteryNotificationService.swift" \
   "$repo_root/PowerMesh/Services/BatteryDashboardStore.swift" \
   "$repo_root/PowerMesh/Services/CloudBatteryStore.swift" \
