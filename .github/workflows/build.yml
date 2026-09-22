@@ -42,11 +42,11 @@ jobs:
             configuration: DebugLocal
             destination: generic/platform=watchOS Simulator
           - name: Widget iOS
-            scheme: PowerMeshWidgets
+            target: PowerMeshWidgets
             configuration: Debug
             sdk: iphonesimulator
           - name: Widget watchOS
-            scheme: PowerMeshWatchWidgets
+            target: PowerMeshWatchWidgets
             configuration: Debug
             sdk: watchsimulator
     name: ${{ matrix.name }}
@@ -84,7 +84,7 @@ jobs:
         run: |
           xcodebuild \
             -project PowerMesh.xcodeproj \
-            -scheme "${{ matrix.scheme }}" \
+            -target "${{ matrix.target }}" \
             -configuration "${{ matrix.configuration }}" \
             -sdk "${{ matrix.sdk }}" \
             CODE_SIGNING_ALLOWED=NO \

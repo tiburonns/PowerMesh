@@ -382,3 +382,14 @@ for forbidden in [
 ]:
     if forbidden in dashboard_store:
         fail(f"actor default-argument contract failed: {forbidden}")
+
+
+workflow_source = (ROOT / ".github/workflows/build.yml").read_text(encoding="utf-8")
+for target, sdk in [
+    ("PowerMeshWidgets", "iphonesimulator"),
+    ("PowerMeshWatchWidgets", "watchsimulator"),
+]:
+    if f"target: {target}" not in workflow_source or f"sdk: {sdk}" not in workflow_source:
+        fail(f"widget CI contract failed: {target} must build directly with {sdk}")
+if "-target" not in workflow_source:
+    fail("widget CI contract failed: extension jobs must use xcodebuild -target")
