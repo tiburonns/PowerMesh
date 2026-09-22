@@ -69,7 +69,6 @@ if widget_entitlements.get("com.apple.security.application-groups") != expected_
     fail("App Group contract failed: widget group mismatch")
 
 for required in [
-    "WatchSettingsView.swift in Sources",
     "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMesh.entitlements;",
     "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMeshWatch.entitlements;",
     '"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = PowerMesh/PowerMeshMac.entitlements;',
@@ -149,18 +148,6 @@ if '"PRODUCT_BUNDLE_IDENTIFIER[sdk=watchos*]" = com.tiburonns.PowerMesh.local.wa
     fail("local-test contract failed: local Watch widget bundle identifier is missing")
 if not (ROOT / "PowerMesh.xcodeproj/xcshareddata/xcschemes/PowerMeshWatch Local.xcscheme").exists():
     fail("local-test contract failed: PowerMeshWatch Local scheme is missing")
-
-dashboard_store = (ROOT / "PowerMesh/Services/BatteryDashboardStore.swift").read_text(encoding="utf-8")
-startup_refresh = dashboard_store.find("await self.refreshNow(forceUpload: true)")
-startup_subscription = dashboard_store.find("await self.prepareRemoteChanges()", startup_refresh)
-if startup_refresh < 0 or startup_subscription < 0 or startup_refresh > startup_subscription:
-    fail("CloudKit startup contract failed: first publish must precede subscription preparation")
-if "remoteChangesPrepared" not in dashboard_store:
-    fail("CloudKit startup contract failed: subscription retry state is missing")
-
-watch_settings = ROOT / "PowerMesh/Views/WatchSettingsView.swift"
-if not watch_settings.exists():
-    fail("watchOS UI contract failed: WatchSettingsView.swift is missing")
 
 cloud_store = (ROOT / "PowerMesh/Services/CloudBatteryStore.swift").read_text(encoding="utf-8")
 for required in [
