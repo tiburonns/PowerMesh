@@ -60,6 +60,7 @@ enum AppText: String, Hashable {
     case backgroundSyncHelp, lowBatteryTitle
     case accessoriesSection, bluetoothAccessories, bluetoothAccessoriesHelp
     case trend, insufficientData, hourShort
+    case lowBatteryMessageFormat, bluetoothAccessoryDefaultName
 
     fileprivate func value(for language: ResolvedAppLanguage) -> String {
         let table = language == .spanish ? Self.spanish : Self.english
@@ -123,7 +124,9 @@ enum AppText: String, Hashable {
         .bluetoothAccessoriesHelp: "Scans only for nearby accessories that publicly expose the standard Bluetooth Battery Service. Compatibility is not guaranteed for AirPods, Apple Pencil, or proprietary accessories.",
         .trend: "Trend",
         .insufficientData: "Collecting data",
-        .hourShort: "h"
+        .hourShort: "h",
+        .lowBatteryMessageFormat: "%@ has %d%% battery remaining.",
+        .bluetoothAccessoryDefaultName: "Bluetooth Accessory"
     ]
 
     private static let spanish: [AppText: String] = [
@@ -183,7 +186,9 @@ enum AppText: String, Hashable {
         .bluetoothAccessoriesHelp: "Busca únicamente accesorios cercanos que exponen públicamente el servicio estándar de batería de Bluetooth. No se garantiza compatibilidad con AirPods, Apple Pencil ni accesorios propietarios.",
         .trend: "Tendencia",
         .insufficientData: "Recopilando datos",
-        .hourShort: "h"
+        .hourShort: "h",
+        .lowBatteryMessageFormat: "%@ tiene %d%% de batería.",
+        .bluetoothAccessoryDefaultName: "Accesorio Bluetooth"
     ]
 }
 

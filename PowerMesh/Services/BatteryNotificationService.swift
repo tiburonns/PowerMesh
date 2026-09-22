@@ -16,6 +16,41 @@ enum BatteryAlertSettings {
     }
 }
 
+enum BatteryAlertPolicy {
+    static func shouldAlert(
+        snapshot: BatterySnapshot,
+        threshold: Int,
+        previousAlertLevel: Int?,
+        now: Date = .now
+    ) -> Bool {
+        guard let level = snapshot.level,
+              level <= threshold,
+              snapshot.state == .unplugged else {
+            return false
+        }
+
+        switch snapshot.availability(at: now) {
+        case .live, .recent:
+            break
+        case .stale, .offline:
+            return false
+        }
+
+        guard let previousAlertLevel else { return true }
+        return level <= previousAlertLevel - 5
+    }
+
+    static func shouldReset(
+        snapshot: BatterySnapshot,
+        threshold: Int
+    ) -> Bool {
+        guard let level = snapshot.level else { return false }
+        return level > threshold + 5
+            || snapshot.state == .charging
+            || snapshot.state == .full
+    }
+}
+
 enum BatteryNotificationService {
     private static let lastAlertPrefix = "powermesh.alerts.last."
 
@@ -45,23 +80,34 @@ enum BatteryNotificationService {
 
         let threshold = BatteryAlertSettings.threshold
         for snapshot in snapshots {
-            guard let level = snapshot.level,
-                  level <= threshold,
-                  snapshot.state == .unplugged,
-                  snapshot.availability(at: now) != .offline else {
-                resetAlertIfRecovered(snapshot, threshold: threshold)
+            let key = lastAlertPrefix + snapshot.id
+            let previousLevel = UserDefaults.standard.object(forKey: key) as? Int
+
+            if BatteryAlertPolicy.shouldReset(
+                snapshot: snapshot,
+                threshold: threshold
+            ) {
+                UserDefaults.standard.removeObject(forKey: key)
+            }
+
+            guard BatteryAlertPolicy.shouldAlert(
+                snapshot: snapshot,
+                threshold: threshold,
+                previousAlertLevel: previousLevel,
+                now: now
+            ),
+            let level = snapshot.level else {
                 continue
             }
 
-            let key = lastAlertPrefix + snapshot.id
-            let previousLevel = UserDefaults.standard.object(forKey: key) as? Int
-            guard previousLevel == nil || level <= previousLevel! - 5 else { continue }
-
             let content = UNMutableNotificationContent()
             content.title = language.text(.lowBatteryTitle)
-            content.body = language.resolved == .spanish
-                ? "\(snapshot.name) tiene \(level)% de batería."
-                : "\(snapshot.name) has \(level)% battery remaining."
+            content.body = String(
+                format: language.text(.lowBatteryMessageFormat),
+                locale: language.locale,
+                snapshot.name,
+                level
+            )
             content.sound = .default
             content.threadIdentifier = "powermesh-low-battery"
 
@@ -77,16 +123,6 @@ enum BatteryNotificationService {
             } catch {
                 // Notification delivery failure must never break battery sync.
             }
-        }
-    }
-
-    private static func resetAlertIfRecovered(
-        _ snapshot: BatterySnapshot,
-        threshold: Int
-    ) {
-        guard let level = snapshot.level else { return }
-        if level > threshold + 5 || snapshot.state == .charging || snapshot.state == .full {
-            UserDefaults.standard.removeObject(forKey: lastAlertPrefix + snapshot.id)
         }
     }
 }

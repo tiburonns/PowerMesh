@@ -17,6 +17,7 @@ struct PowerMeshCoreIntegration {
         try testStalenessBoundary()
         try testAvailabilityBoundaries()
         try testTrendAnalysis()
+        try testBatteryAlertPolicy()
         try testReconciliationPrefersNewestRemoteDuplicate()
         try testLocalSnapshotOverridesCloudCopy()
         try testLanguageFallbacks()
@@ -24,7 +25,7 @@ struct PowerMeshCoreIntegration {
         try testSnapshotSyncValidation()
         try await testDashboardStoreUsesInjectedCloudAndKeepsLastGoodState()
         try await testDashboardStoreMapsICloudUnavailable()
-        print("PASS: PowerMesh staleness, reconciliation, localization, sync validation, and injected sync failure handling")
+        print("PASS: PowerMesh freshness, trends, alert policy, reconciliation, localization, sync validation, and injected sync failure handling")
     }
 
     private static func require(
@@ -124,6 +125,69 @@ struct PowerMeshCoreIntegration {
                 now: tooShort[1].date
             ) == nil,
             "Trend analysis must reject an insufficient sample duration"
+        )
+    }
+
+    private static func testBatteryAlertPolicy() throws {
+        let now = Date(timeIntervalSince1970: 40_000)
+        let liveLow = snapshot(
+            id: "alert",
+            name: "Alert",
+            updatedAt: now.addingTimeInterval(-60),
+            level: 15
+        )
+
+        try require(
+            BatteryAlertPolicy.shouldAlert(
+                snapshot: liveLow,
+                threshold: 20,
+                previousAlertLevel: nil,
+                now: now
+            ),
+            "Fresh low-battery snapshot should alert"
+        )
+        try require(
+            !BatteryAlertPolicy.shouldAlert(
+                snapshot: liveLow,
+                threshold: 20,
+                previousAlertLevel: 15,
+                now: now
+            ),
+            "Duplicate low-battery level should not alert twice"
+        )
+
+        var lower = liveLow
+        lower.level = 10
+        try require(
+            BatteryAlertPolicy.shouldAlert(
+                snapshot: lower,
+                threshold: 20,
+                previousAlertLevel: 15,
+                now: now
+            ),
+            "A five-point drop should be eligible for another alert"
+        )
+
+        var stale = liveLow
+        stale.updatedAt = now.addingTimeInterval(-60 * 60)
+        try require(
+            !BatteryAlertPolicy.shouldAlert(
+                snapshot: stale,
+                threshold: 20,
+                previousAlertLevel: nil,
+                now: now
+            ),
+            "Stale battery data must never trigger a low-battery alert"
+        )
+
+        var charging = liveLow
+        charging.state = .charging
+        try require(
+            BatteryAlertPolicy.shouldReset(
+                snapshot: charging,
+                threshold: 20
+            ),
+            "Charging should reset the low-battery alert state"
         )
     }
 

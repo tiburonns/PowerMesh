@@ -87,9 +87,12 @@ final class AccessoryBatteryScanner: NSObject {
     private func publish(_ level: Int, from peripheral: CBPeripheral) {
         let safeLevel = min(100, max(0, level))
         let name = peripheral.name?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawLanguage = UserDefaults.standard.string(forKey: AppLanguage.storageKey)
+        let language = rawLanguage.flatMap(AppLanguage.init(rawValue:)) ?? .system
+        let fallbackName = language.text(.bluetoothAccessoryDefaultName)
         let snapshot = BatterySnapshot(
             id: "ble-\(peripheral.identifier.uuidString.lowercased())",
-            name: (name?.isEmpty == false ? name! : "Bluetooth Accessory"),
+            name: (name?.isEmpty == false ? name! : fallbackName),
             kind: .accessory,
             level: safeLevel,
             state: .unknown,
