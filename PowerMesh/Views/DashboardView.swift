@@ -47,6 +47,15 @@ struct DashboardView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 28)
                     }
+
+                    #if os(watchOS)
+                    NavigationLink {
+                        WatchSettingsView()
+                            .environmentObject(store)
+                    } label: {
+                        Label(language.text(.settings), systemImage: "gearshape")
+                    }
+                    #endif
                 }
                 .padding()
             }

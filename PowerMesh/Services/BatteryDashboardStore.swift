@@ -33,6 +33,7 @@ final class BatteryDashboardStore: ObservableObject {
     private var lastPublished: BatterySnapshot?
     private var localSnapshot: BatterySnapshot?
     private var lastRemoteRefresh: Date?
+    private var remoteChangesPrepared = false
 
     init(
         cloud: any BatteryCloudStore = CloudBatteryStore(),
@@ -72,8 +73,10 @@ final class BatteryDashboardStore: ObservableObject {
         reportingTask = Task { [weak self] in
             guard let self else { return }
             await self.restoreCachedState()
-            await self.prepareRemoteChanges()
+            // Publish once before installing the query subscription so a brand-new
+            // development container has a BatterySnapshot record type/schema.
             await self.refreshNow(forceUpload: true)
+            await self.prepareRemoteChanges()
 
             while !Task.isCancelled {
                 do {
@@ -86,6 +89,9 @@ final class BatteryDashboardStore: ObservableObject {
                 _ = await self.reportLocalIfNeeded(force: false)
                 if self.shouldRefreshRemote {
                     _ = await self.loadRemote()
+                }
+                if !self.remoteChangesPrepared {
+                    await self.prepareRemoteChanges()
                 }
             }
         }
@@ -107,6 +113,9 @@ final class BatteryDashboardStore: ObservableObject {
     func refreshForBackground() async -> Bool {
         let uploadSucceeded = await reportLocalIfNeeded(force: false)
         let downloadSucceeded = await loadRemote()
+        if !remoteChangesPrepared {
+            await prepareRemoteChanges()
+        }
         #if os(iOS)
         BackgroundRefreshCoordinator.schedule()
         #elseif os(watchOS)
@@ -169,9 +178,13 @@ final class BatteryDashboardStore: ObservableObject {
     }
 
     private func prepareRemoteChanges() async {
+        guard !remoteChangesPrepared else { return }
+
         do {
             try await cloud.prepareForRemoteChanges()
+            remoteChangesPrepared = true
         } catch {
+            remoteChangesPrepared = false
             syncIssue = issue(for: error)
         }
     }
