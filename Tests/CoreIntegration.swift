@@ -15,6 +15,7 @@ enum PowerMeshTestFailure: Error, CustomStringConvertible {
 struct PowerMeshCoreIntegration {
     static func main() async throws {
         try testStalenessBoundary()
+        try testAvailabilityBoundaries()
         try testReconciliationPrefersNewestRemoteDuplicate()
         try testLocalSnapshotOverridesCloudCopy()
         try testLanguageFallbacks()
@@ -68,6 +69,19 @@ struct PowerMeshCoreIntegration {
 
         try require(!fresh.isStale(at: now), "Fresh snapshot was marked stale")
         try require(stale.isStale(at: now), "Stale snapshot was marked fresh")
+    }
+
+    private static func testAvailabilityBoundaries() throws {
+        let now = Date(timeIntervalSince1970: 20_000)
+        let live = snapshot(id: "live", name: "Live", updatedAt: now.addingTimeInterval(-60), level: 90)
+        let recent = snapshot(id: "recent", name: "Recent", updatedAt: now.addingTimeInterval(-10 * 60), level: 80)
+        let stale = snapshot(id: "stale-status", name: "Stale", updatedAt: now.addingTimeInterval(-60 * 60), level: 70)
+        let offline = snapshot(id: "offline", name: "Offline", updatedAt: now.addingTimeInterval(-3 * 60 * 60), level: 60)
+
+        try require(live.availability(at: now) == .live, "Live availability boundary failed")
+        try require(recent.availability(at: now) == .recent, "Recent availability boundary failed")
+        try require(stale.availability(at: now) == .stale, "Stale availability boundary failed")
+        try require(offline.availability(at: now) == .offline, "Offline availability boundary failed")
     }
 
     private static func testReconciliationPrefersNewestRemoteDuplicate() throws {
@@ -303,6 +317,8 @@ private actor FakeBatteryCloudStore: BatteryCloudStore {
     func setFetchMode(_ mode: FakeFetchMode) {
         fetchMode = mode
     }
+
+    func prepareForRemoteChanges() async throws {}
 
     func upsert(_ snapshot: BatterySnapshot) async throws {
         if let index = records.firstIndex(where: { $0.id == snapshot.id }) {

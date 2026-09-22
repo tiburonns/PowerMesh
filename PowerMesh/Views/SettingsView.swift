@@ -6,7 +6,10 @@ struct SettingsView: View {
     @Environment(\.appLanguage) private var language
     @Environment(\.dismiss) private var dismiss
     @AppStorage(AppLanguage.storageKey) private var languagePreference = AppLanguage.system.rawValue
+    @AppStorage(BatteryAlertSettings.enabledKey) private var lowBatteryAlerts = false
+    @AppStorage(BatteryAlertSettings.thresholdKey) private var lowBatteryThreshold = BatteryAlertSettings.defaultThreshold
     @State private var draftName = ""
+    @State private var notificationPermissionDenied = false
 
     private var remoteDevices: [BatterySnapshot] {
         store.snapshots.filter { $0.id != DeviceIdentity.id }
@@ -18,11 +21,9 @@ struct SettingsView: View {
                 Section(language.text(.languageSection)) {
                     Picker(language.text(.language), selection: $languagePreference) {
                         ForEach(AppLanguage.allCases) { option in
-                            Text(option.optionTitle(in: language))
-                                .tag(option.rawValue)
+                            Text(option.optionTitle(in: language)).tag(option.rawValue)
                         }
                     }
-
                     Text(language.text(.languageHelp))
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -31,6 +32,44 @@ struct SettingsView: View {
                 Section(language.text(.thisDevice)) {
                     TextField(language.text(.name), text: $draftName)
                     Text(language.text(.deviceNameHelp))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section(language.text(.alertsSection)) {
+                    Toggle(language.text(.lowBatteryAlerts), isOn: $lowBatteryAlerts)
+
+                    Stepper(value: $lowBatteryThreshold, in: 5...50, step: 5) {
+                        HStack {
+                            Text(language.text(.lowBatteryThreshold))
+                            Spacer()
+                            Text("\(lowBatteryThreshold)%").monospacedDigit()
+                        }
+                    }
+                    .disabled(!lowBatteryAlerts)
+
+                    Text(language.text(.lowBatteryAlertsHelp))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    if notificationPermissionDenied {
+                        Text(language.text(.notificationPermissionDenied))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Section(language.text(.syncSection)) {
+                    HStack {
+                        Text(language.text(.lastSync))
+                        Spacer()
+                        if let date = store.lastSuccessfulSync {
+                            Text(date, style: .relative)
+                        } else {
+                            Text(language.text(.never))
+                        }
+                    }
+                    Text(language.text(.backgroundSyncHelp))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -45,17 +84,12 @@ struct SettingsView: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
-
                                 Spacer()
-
                                 Button(language.text(.forgetDevice), role: .destructive) {
-                                    Task {
-                                        await store.forgetDevice(id: snapshot.id)
-                                    }
+                                    Task { await store.forgetDevice(id: snapshot.id) }
                                 }
                             }
                         }
-
                         Text(language.text(.knownDevicesHelp))
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -77,6 +111,16 @@ struct SettingsView: View {
                 }
             }
             .onAppear { draftName = store.localDeviceName }
+            .onChange(of: lowBatteryAlerts) { _, enabled in
+                guard enabled else { return }
+                Task {
+                    let granted = await BatteryNotificationService.requestAuthorization()
+                    await MainActor.run {
+                        notificationPermissionDenied = !granted
+                        if !granted { lowBatteryAlerts = false }
+                    }
+                }
+            }
         }
     }
 }

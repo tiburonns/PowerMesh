@@ -54,14 +54,15 @@ struct BatteryCard: View {
             HStack(spacing: 6) {
                 Circle()
                     .frame(width: 7, height: 7)
-                    .foregroundStyle(snapshot.isStale ? .secondary : .primary)
-                Text(snapshot.isStale ? language.text(.staleData) : language.text(.updated))
+                Text(snapshot.availability.displayName(in: language))
+                Text("•")
                 Text(snapshot.updatedAt, style: .relative)
             }
             .font(.caption2)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(snapshot.availability == .live ? .primary : .secondary)
         }
         .padding(16)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .accessibilityElement(children: .contain)
     }
 }

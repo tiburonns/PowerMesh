@@ -5,9 +5,7 @@ struct DashboardView: View {
     @Environment(\.appLanguage) private var language
     @State private var showingSettings = false
 
-    private let columns = [
-        GridItem(.adaptive(minimum: 190), spacing: 14)
-    ]
+    private let columns = [GridItem(.adaptive(minimum: 190), spacing: 14)]
 
     var body: some View {
         NavigationStack {
@@ -24,7 +22,14 @@ struct DashboardView: View {
 
                     LazyVGrid(columns: columns, spacing: 14) {
                         ForEach(store.snapshots) { snapshot in
-                            BatteryCard(snapshot: snapshot)
+                            NavigationLink {
+                                DeviceDetailView(snapshot: snapshot)
+                                    .environmentObject(store)
+                            } label: {
+                                BatteryCard(snapshot: snapshot)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
 
@@ -51,11 +56,8 @@ struct DashboardView: View {
                     Button {
                         Task { await store.refreshNow() }
                     } label: {
-                        if store.isRefreshing {
-                            ProgressView()
-                        } else {
-                            Image(systemName: "arrow.clockwise")
-                        }
+                        if store.isRefreshing { ProgressView() }
+                        else { Image(systemName: "arrow.clockwise") }
                     }
                     .disabled(store.isRefreshing)
                     .accessibilityLabel(language.text(.refresh))
@@ -71,17 +73,12 @@ struct DashboardView: View {
                 }
             }
             #if !os(watchOS)
-            .refreshable {
-                await store.refreshNow()
-            }
+            .refreshable { await store.refreshNow() }
             .sheet(isPresented: $showingSettings) {
-                SettingsView()
-                    .environmentObject(store)
+                SettingsView().environmentObject(store)
             }
             #endif
-            .task {
-                store.start()
-            }
+            .task { store.start() }
         }
     }
 }

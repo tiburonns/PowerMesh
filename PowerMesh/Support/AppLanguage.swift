@@ -12,21 +12,16 @@ enum AppLanguage: String, CaseIterable, Identifiable, Equatable {
 
     var locale: Locale {
         switch self {
-        case .system:
-            return .autoupdatingCurrent
-        case .english:
-            return Locale(identifier: "en")
-        case .spanish:
-            return Locale(identifier: "es")
+        case .system: return .autoupdatingCurrent
+        case .english: return Locale(identifier: "en")
+        case .spanish: return Locale(identifier: "es")
         }
     }
 
     var resolved: ResolvedAppLanguage {
         switch self {
-        case .english:
-            return .english
-        case .spanish:
-            return .spanish
+        case .english: return .english
+        case .spanish: return .spanish
         case .system:
             let preferred = Locale.preferredLanguages.first?.lowercased() ?? "en"
             return preferred.hasPrefix("es") ? .spanish : .english
@@ -39,12 +34,9 @@ enum AppLanguage: String, CaseIterable, Identifiable, Equatable {
 
     func optionTitle(in currentLanguage: AppLanguage) -> String {
         switch self {
-        case .system:
-            return currentLanguage.text(.systemLanguage)
-        case .english:
-            return "English"
-        case .spanish:
-            return "Español"
+        case .system: return currentLanguage.text(.systemLanguage)
+        case .english: return "English"
+        case .spanish: return "Español"
         }
     }
 }
@@ -55,36 +47,17 @@ enum ResolvedAppLanguage: Equatable {
 }
 
 enum AppText: String, Hashable {
-    case batteriesTitle
-    case refresh
-    case settings
-    case noDevicesTitle
-    case noDevicesMessage
-    case syncError
-    case iCloudUnavailable
-    case thisDevice
-    case name
-    case deviceNameHelp
-    case knownDevices
-    case knownDevicesHelp
-    case forgetDevice
-    case languageSection
-    case language
-    case languageHelp
-    case systemLanguage
-    case cancel
-    case save
-    case charging
-    case battery
-    case percent
-    case noInternalBattery
-    case staleData
-    case updated
-    case accessory
-    case chargeOnBattery
-    case chargeFull
-    case chargeExternalPower
-    case chargeUnknown
+    case batteriesTitle, refresh, settings, noDevicesTitle, noDevicesMessage
+    case syncError, iCloudUnavailable, thisDevice, name, deviceNameHelp
+    case knownDevices, knownDevicesHelp, forgetDevice
+    case languageSection, language, languageHelp, systemLanguage, cancel, save
+    case charging, battery, percent, noInternalBattery, staleData, updated, accessory
+    case chargeOnBattery, chargeFull, chargeExternalPower, chargeUnknown
+    case statusLive, statusRecent, statusStale, statusOffline, status
+    case batteryHistory, historyEmpty, historySevenDays, samples, lastUpdate, source
+    case alertsSection, lowBatteryAlerts, lowBatteryAlertsHelp, lowBatteryThreshold
+    case notificationPermissionDenied, syncSection, lastSync, never
+    case backgroundSyncHelp, lowBatteryTitle
 
     fileprivate func value(for language: ResolvedAppLanguage) -> String {
         let table = language == .spanish ? Self.spanish : Self.english
@@ -121,7 +94,28 @@ enum AppText: String, Hashable {
         .chargeOnBattery: "On battery",
         .chargeFull: "Fully charged",
         .chargeExternalPower: "External power",
-        .chargeUnknown: "Unknown status"
+        .chargeUnknown: "Unknown status",
+        .statusLive: "Live",
+        .statusRecent: "Recent",
+        .statusStale: "Stale",
+        .statusOffline: "Offline",
+        .status: "Status",
+        .batteryHistory: "Battery history",
+        .historyEmpty: "History will appear as PowerMesh collects battery snapshots.",
+        .historySevenDays: "Up to 7 days",
+        .samples: "samples",
+        .lastUpdate: "Last update",
+        .source: "Source",
+        .alertsSection: "Alerts",
+        .lowBatteryAlerts: "Low-battery alerts",
+        .lowBatteryAlertsHelp: "Notify this device when a recently seen PowerMesh device falls below your threshold.",
+        .lowBatteryThreshold: "Alert threshold",
+        .notificationPermissionDenied: "Notifications are disabled for PowerMesh in system settings.",
+        .syncSection: "Sync",
+        .lastSync: "Last successful sync",
+        .never: "Never",
+        .backgroundSyncHelp: "Background refresh and CloudKit pushes are opportunistic. PowerMesh always shows when each reading was last updated.",
+        .lowBatteryTitle: "Low battery"
     ]
 
     private static let spanish: [AppText: String] = [
@@ -154,7 +148,28 @@ enum AppText: String, Hashable {
         .chargeOnBattery: "Con batería",
         .chargeFull: "Carga completa",
         .chargeExternalPower: "Alimentación externa",
-        .chargeUnknown: "Estado desconocido"
+        .chargeUnknown: "Estado desconocido",
+        .statusLive: "En vivo",
+        .statusRecent: "Reciente",
+        .statusStale: "Desactualizado",
+        .statusOffline: "Sin conexión",
+        .status: "Estado",
+        .batteryHistory: "Historial de batería",
+        .historyEmpty: "El historial aparecerá conforme PowerMesh recopile lecturas de batería.",
+        .historySevenDays: "Hasta 7 días",
+        .samples: "muestras",
+        .lastUpdate: "Última actualización",
+        .source: "Fuente",
+        .alertsSection: "Alertas",
+        .lowBatteryAlerts: "Alertas de batería baja",
+        .lowBatteryAlertsHelp: "Notifica en este dispositivo cuando un dispositivo visto recientemente por PowerMesh baje del umbral elegido.",
+        .lowBatteryThreshold: "Umbral de alerta",
+        .notificationPermissionDenied: "Las notificaciones están desactivadas para PowerMesh en los ajustes del sistema.",
+        .syncSection: "Sincronización",
+        .lastSync: "Última sincronización correcta",
+        .never: "Nunca",
+        .backgroundSyncHelp: "La actualización en segundo plano y los avisos de CloudKit son oportunistas. PowerMesh siempre muestra cuándo se actualizó por última vez cada lectura.",
+        .lowBatteryTitle: "Batería baja"
     ]
 }
 

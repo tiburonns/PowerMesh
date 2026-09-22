@@ -31,6 +31,19 @@
 		A2000000000000000000000A /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* DashboardView.swift */; };
 		A2000000000000000000000B /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* SettingsView.swift */; };
 		A2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* PrivacyInfo.xcprivacy */; };
+
+		A30010000000000000000001 /* BatteryHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000001 /* BatteryHistory.swift */; };
+		A30010000000000000000002 /* PowerMeshStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000002 /* PowerMeshStorage.swift */; };
+		A30010000000000000000003 /* BatteryNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000003 /* BatteryNotificationService.swift */; };
+		A30010000000000000000004 /* BackgroundRefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000004 /* BackgroundRefreshCoordinator.swift */; };
+		A30010000000000000000005 /* AppLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000005 /* AppLifecycle.swift */; };
+		A30010000000000000000006 /* DeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000006 /* DeviceDetailView.swift */; };
+		A30020000000000000000001 /* BatteryHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000001 /* BatteryHistory.swift */; };
+		A30020000000000000000002 /* PowerMeshStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000002 /* PowerMeshStorage.swift */; };
+		A30020000000000000000003 /* BatteryNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000003 /* BatteryNotificationService.swift */; };
+		A30020000000000000000004 /* BackgroundRefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000004 /* BackgroundRefreshCoordinator.swift */; };
+		A30020000000000000000005 /* AppLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000005 /* AppLifecycle.swift */; };
+		A30020000000000000000006 /* DeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000006 /* DeviceDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,10 +83,10 @@
 			sourceTree = "<group>";
 		};
 		D11000000000000000000001 /* App */ = {isa = PBXGroup; children = (B10000000000000000000001 /* PowerMeshApp.swift */); path = App; sourceTree = "<group>"; };
-		D11000000000000000000002 /* Models */ = {isa = PBXGroup; children = (B10000000000000000000002 /* BatterySnapshot.swift */); path = Models; sourceTree = "<group>"; };
-		D11000000000000000000003 /* Services */ = {isa = PBXGroup; children = (B10000000000000000000003 /* BatteryDashboardStore.swift */, B10000000000000000000004 /* CloudBatteryStore.swift */, B10000000000000000000005 /* DeviceIdentity.swift */, B10000000000000000000006 /* LocalBatteryReader.swift */); path = Services; sourceTree = "<group>"; };
-		D11000000000000000000004 /* Support */ = {isa = PBXGroup; children = (B10000000000000000000007 /* AppLanguage.swift */); path = Support; sourceTree = "<group>"; };
-		D11000000000000000000005 /* Views */ = {isa = PBXGroup; children = (B10000000000000000000008 /* BatteryCard.swift */, B10000000000000000000009 /* CompactMenuView.swift */, B1000000000000000000000A /* DashboardView.swift */, B1000000000000000000000B /* SettingsView.swift */); path = Views; sourceTree = "<group>"; };
+		D11000000000000000000002 /* Models */ = {isa = PBXGroup; children = (B10000000000000000000002 /* BatterySnapshot.swift */, B30000000000000000000001 /* BatteryHistory.swift */); path = Models; sourceTree = "<group>"; };
+		D11000000000000000000003 /* Services */ = {isa = PBXGroup; children = (B10000000000000000000003 /* BatteryDashboardStore.swift */, B10000000000000000000004 /* CloudBatteryStore.swift */, B10000000000000000000005 /* DeviceIdentity.swift */, B10000000000000000000006 /* LocalBatteryReader.swift */, B30000000000000000000002 /* PowerMeshStorage.swift */, B30000000000000000000003 /* BatteryNotificationService.swift */, B30000000000000000000004 /* BackgroundRefreshCoordinator.swift */); path = Services; sourceTree = "<group>"; };
+		D11000000000000000000004 /* Support */ = {isa = PBXGroup; children = (B10000000000000000000007 /* AppLanguage.swift */, B30000000000000000000005 /* AppLifecycle.swift */); path = Support; sourceTree = "<group>"; };
+		D11000000000000000000005 /* Views */ = {isa = PBXGroup; children = (B10000000000000000000008 /* BatteryCard.swift */, B10000000000000000000009 /* CompactMenuView.swift */, B1000000000000000000000A /* DashboardView.swift */, B1000000000000000000000B /* SettingsView.swift */, B30000000000000000000006 /* DeviceDetailView.swift */); path = Views; sourceTree = "<group>"; };
 		D10000000000000000000003 /* Products */ = {isa = PBXGroup; children = (B10000000000000000000010 /* PowerMesh.app */, B10000000000000000000011 /* PowerMeshWatch.app */); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
@@ -125,8 +138,8 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		C10000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001, A10000000000000000000002, A10000000000000000000003, A10000000000000000000004, A10000000000000000000005, A10000000000000000000006, A10000000000000000000007, A10000000000000000000008, A10000000000000000000009, A1000000000000000000000A, A1000000000000000000000B); runOnlyForDeploymentPostprocessing = 0; };
-		C20000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A20000000000000000000001, A20000000000000000000002, A20000000000000000000003, A20000000000000000000004, A20000000000000000000005, A20000000000000000000006, A20000000000000000000007, A20000000000000000000008, A20000000000000000000009, A2000000000000000000000A, A2000000000000000000000B); runOnlyForDeploymentPostprocessing = 0; };
+		C10000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001, A10000000000000000000002, A10000000000000000000003, A10000000000000000000004, A10000000000000000000005, A10000000000000000000006, A10000000000000000000007, A10000000000000000000008, A10000000000000000000009, A1000000000000000000000A, A1000000000000000000000B, A30010000000000000000001, A30010000000000000000002, A30010000000000000000003, A30010000000000000000004, A30010000000000000000005, A30010000000000000000006); runOnlyForDeploymentPostprocessing = 0; };
+		C20000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A20000000000000000000001, A20000000000000000000002, A20000000000000000000003, A20000000000000000000004, A20000000000000000000005, A20000000000000000000006, A20000000000000000000007, A20000000000000000000008, A20000000000000000000009, A2000000000000000000000A, A2000000000000000000000B, A30020000000000000000001, A30020000000000000000002, A30020000000000000000003, A30020000000000000000004, A30020000000000000000005, A30020000000000000000006); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */

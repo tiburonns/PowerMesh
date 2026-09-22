@@ -76,6 +76,20 @@ struct BatterySnapshot: Identifiable, Codable, Hashable, Sendable {
         return true
     }
 
+    var availability: SnapshotAvailability {
+        availability(at: .now)
+    }
+
+    func availability(at now: Date) -> SnapshotAvailability {
+        let age = max(0, now.timeIntervalSince(updatedAt))
+        switch age {
+        case ..<(5 * 60): return .live
+        case ..<(30 * 60): return .recent
+        case ..<(2 * 60 * 60): return .stale
+        default: return .offline
+        }
+    }
+
     var isStale: Bool {
         isStale(at: .now)
     }
@@ -95,7 +109,7 @@ enum BatterySnapshotReconciler {
     ) -> [BatterySnapshot] {
         var byID: [String: BatterySnapshot] = [:]
 
-        for snapshot in remote {
+        for snapshot in remote where snapshot.isValidForSync {
             if let existing = byID[snapshot.id] {
                 if snapshot.updatedAt > existing.updatedAt {
                     byID[snapshot.id] = snapshot
@@ -105,7 +119,7 @@ enum BatterySnapshotReconciler {
             }
         }
 
-        if let local {
+        if let local, local.isValidForSync {
             byID[local.id] = local
         }
 

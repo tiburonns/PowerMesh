@@ -7,15 +7,14 @@ enum CloudBatteryStoreError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .iCloudUnavailable:
-            return "iCloud is unavailable."
-        case .invalidSnapshot:
-            return "The battery snapshot contains invalid sync data."
+        case .iCloudUnavailable: return "iCloud is unavailable."
+        case .invalidSnapshot: return "The battery snapshot contains invalid sync data."
         }
     }
 }
 
 protocol BatteryCloudStore: Sendable {
+    func prepareForRemoteChanges() async throws
     func upsert(_ snapshot: BatterySnapshot) async throws
     func delete(deviceID: String) async throws
     func fetchAll() async throws -> [BatterySnapshot]
@@ -26,30 +25,21 @@ actor CloudBatteryStore: BatteryCloudStore {
     static let recordType = "BatterySnapshot"
     static let containerIdentifier = "iCloud.com.tiburonns.PowerMesh"
 
-    func upsert(_ snapshot: BatterySnapshot) async throws {
-        // Intentionally disabled in the Local test configuration.
-        // The local battery snapshot is still kept in BatteryDashboardStore.
-    }
-
-    func delete(deviceID: String) async throws {
-        // No remote data exists in the Local test configuration.
-    }
-
-    func fetchAll() async throws -> [BatterySnapshot] {
-        []
-    }
+    func prepareForRemoteChanges() async throws {}
+    func upsert(_ snapshot: BatterySnapshot) async throws {}
+    func delete(deviceID: String) async throws {}
+    func fetchAll() async throws -> [BatterySnapshot] { [] }
 }
 #else
 actor CloudBatteryStore: BatteryCloudStore {
     static let recordType = "BatterySnapshot"
     static let containerIdentifier = "iCloud.com.tiburonns.PowerMesh"
+    static let subscriptionID = "powermesh-battery-snapshots-v1"
 
     private var database: CKDatabase?
 
     private func privateDatabase() async throws -> CKDatabase {
-        if let database {
-            return database
-        }
+        if let database { return database }
 
         let container = CKContainer(identifier: Self.containerIdentifier)
         let accountStatus = try await container.accountStatus()
@@ -60,6 +50,28 @@ actor CloudBatteryStore: BatteryCloudStore {
         let createdDatabase = container.privateCloudDatabase
         database = createdDatabase
         return createdDatabase
+    }
+
+    func prepareForRemoteChanges() async throws {
+        let database = try await privateDatabase()
+
+        do {
+            _ = try await database.subscription(for: Self.subscriptionID)
+            return
+        } catch let error as CKError where error.code == .unknownItem {
+            // Expected on first launch for this iCloud account.
+        }
+
+        let subscription = CKQuerySubscription(
+            recordType: Self.recordType,
+            predicate: NSPredicate(value: true),
+            subscriptionID: Self.subscriptionID,
+            options: [.firesOnRecordCreation, .firesOnRecordUpdate, .firesOnRecordDeletion]
+        )
+        let notificationInfo = CKSubscription.NotificationInfo()
+        notificationInfo.shouldSendContentAvailable = true
+        subscription.notificationInfo = notificationInfo
+        _ = try await database.save(subscription)
     }
 
     func upsert(_ snapshot: BatterySnapshot) async throws {
@@ -105,10 +117,7 @@ actor CloudBatteryStore: BatteryCloudStore {
 
     func fetchAll() async throws -> [BatterySnapshot] {
         let database = try await privateDatabase()
-        let query = CKQuery(
-            recordType: Self.recordType,
-            predicate: NSPredicate(value: true)
-        )
+        let query = CKQuery(recordType: Self.recordType, predicate: NSPredicate(value: true))
 
         var snapshots: [BatterySnapshot] = []
         var cursor: CKQueryOperation.Cursor?
@@ -120,38 +129,24 @@ actor CloudBatteryStore: BatteryCloudStore {
                 queryCursor: CKQueryOperation.Cursor?
             )
 
-            if let cursor = cursor {
-                page = try await database.records(
-                    continuingMatchFrom: cursor,
-                    resultsLimit: 100
-                )
+            if let cursor {
+                page = try await database.records(continuingMatchFrom: cursor, resultsLimit: 100)
             } else {
-                page = try await database.records(
-                    matching: query,
-                    resultsLimit: 100
-                )
+                page = try await database.records(matching: query, resultsLimit: 100)
             }
 
             for (_, result) in page.matchResults {
                 switch result {
                 case .success(let record):
-                    if let snapshot = decode(record) {
-                        snapshots.append(snapshot)
-                    }
+                    if let snapshot = decode(record) { snapshots.append(snapshot) }
                 case .failure(let error):
-                    if firstRecordError == nil {
-                        firstRecordError = error
-                    }
+                    if firstRecordError == nil { firstRecordError = error }
                 }
             }
-
             cursor = page.queryCursor
         } while cursor != nil
 
-        if let firstRecordError {
-            throw firstRecordError
-        }
-
+        if let firstRecordError { throw firstRecordError }
         return snapshots.sorted { $0.updatedAt > $1.updatedAt }
     }
 
@@ -166,21 +161,16 @@ actor CloudBatteryStore: BatteryCloudStore {
             return nil
         }
 
-        let level = (record["level"] as? NSNumber)?.intValue
-        let source = record["source"] as? String ?? "Unknown"
-
         let snapshot = BatterySnapshot(
             id: deviceID,
             name: deviceName,
             kind: kind,
-            level: level,
+            level: (record["level"] as? NSNumber)?.intValue,
             state: state,
             updatedAt: updatedAt,
-            source: source
+            source: record["source"] as? String ?? "Unknown"
         )
-
         return snapshot.isValidForSync ? snapshot : nil
     }
 }
-
 #endif

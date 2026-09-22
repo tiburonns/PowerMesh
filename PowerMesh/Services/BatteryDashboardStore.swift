@@ -7,10 +7,8 @@ enum DashboardSyncIssue: Equatable {
 
     func message(in language: AppLanguage) -> String {
         switch self {
-        case .iCloudUnavailable:
-            return language.text(.iCloudUnavailable)
-        case .detail(let detail):
-            return "\(language.text(.syncError)) (\(detail))"
+        case .iCloudUnavailable: return language.text(.iCloudUnavailable)
+        case .detail(let detail): return "\(language.text(.syncError)) (\(detail))"
         }
     }
 }
@@ -18,13 +16,17 @@ enum DashboardSyncIssue: Equatable {
 @MainActor
 final class BatteryDashboardStore: ObservableObject {
     @Published private(set) var snapshots: [BatterySnapshot] = []
+    @Published private(set) var historyByDevice: [String: [BatteryHistoryPoint]] = [:]
     @Published private(set) var isRefreshing = false
     @Published private(set) var syncIssue: DashboardSyncIssue?
+    @Published private(set) var lastSuccessfulSync: Date?
     @Published var localDeviceName: String = DeviceIdentity.name
 
     private let cloud: any BatteryCloudStore
     private let batteryReader: any BatteryReading
     private let remoteRefreshInterval: TimeInterval
+    private let cache: SnapshotCache
+    private let historyStore: BatteryHistoryStore
 
     private var reportingTask: Task<Void, Never>?
     private var lastPublished: BatterySnapshot?
@@ -34,18 +36,33 @@ final class BatteryDashboardStore: ObservableObject {
     init(
         cloud: any BatteryCloudStore = CloudBatteryStore(),
         batteryReader: any BatteryReading = LocalBatteryReader(),
-        remoteRefreshInterval: TimeInterval = 5 * 60
+        remoteRefreshInterval: TimeInterval = 5 * 60,
+        cache: SnapshotCache = SnapshotCache(),
+        historyStore: BatteryHistoryStore = BatteryHistoryStore()
     ) {
         self.cloud = cloud
         self.batteryReader = batteryReader
         self.remoteRefreshInterval = remoteRefreshInterval
+        self.cache = cache
+        self.historyStore = historyStore
+    }
+
+    deinit {
+        reportingTask?.cancel()
     }
 
     func start() {
         guard reportingTask == nil else { return }
 
+        PowerMeshBackgroundRouter.shared.install { [weak self] in
+            guard let self else { return false }
+            return await self.refreshForBackground()
+        }
+
         reportingTask = Task { [weak self] in
             guard let self else { return }
+            await self.restoreCachedState()
+            await self.prepareRemoteChanges()
             await self.refreshNow(forceUpload: true)
 
             while !Task.isCancelled {
@@ -56,10 +73,9 @@ final class BatteryDashboardStore: ObservableObject {
                 }
                 guard !Task.isCancelled else { break }
 
-                await self.reportLocalIfNeeded(force: false)
-
+                _ = await self.reportLocalIfNeeded(force: false)
                 if self.shouldRefreshRemote {
-                    await self.loadRemote()
+                    _ = await self.loadRemote()
                 }
             }
         }
@@ -67,19 +83,27 @@ final class BatteryDashboardStore: ObservableObject {
 
     func refreshNow(forceUpload: Bool = true) async {
         guard !isRefreshing else { return }
-
         isRefreshing = true
         defer { isRefreshing = false }
 
-        await reportLocalIfNeeded(force: forceUpload)
-        await loadRemote()
+        _ = await reportLocalIfNeeded(force: forceUpload)
+        _ = await loadRemote()
+    }
+
+    func refreshForBackground() async -> Bool {
+        let uploadSucceeded = await reportLocalIfNeeded(force: false)
+        let downloadSucceeded = await loadRemote()
+        #if os(iOS)
+        BackgroundRefreshCoordinator.schedule()
+        #endif
+        return uploadSucceeded && downloadSucceeded
     }
 
     func renameLocalDevice(to newName: String) async {
         DeviceIdentity.name = newName
         localDeviceName = DeviceIdentity.name
-        await reportLocalIfNeeded(force: true)
-        await loadRemote()
+        _ = await reportLocalIfNeeded(force: true)
+        _ = await loadRemote()
     }
 
     func forgetDevice(id: String) async {
@@ -88,10 +112,17 @@ final class BatteryDashboardStore: ObservableObject {
         do {
             try await cloud.delete(deviceID: id)
             snapshots.removeAll { $0.id == id }
+            await cache.remove(deviceID: id)
+            await historyStore.remove(deviceID: id)
+            historyByDevice = await historyStore.all()
             syncIssue = nil
         } catch {
             syncIssue = issue(for: error)
         }
+    }
+
+    func history(for deviceID: String) -> [BatteryHistoryPoint] {
+        historyByDevice[deviceID] ?? []
     }
 
     private var shouldRefreshRemote: Bool {
@@ -99,10 +130,27 @@ final class BatteryDashboardStore: ObservableObject {
         return Date().timeIntervalSince(lastRemoteRefresh) >= remoteRefreshInterval
     }
 
-    private func reportLocalIfNeeded(force: Bool) async {
+    private func restoreCachedState() async {
+        let cached = await cache.load()
+        if !cached.isEmpty {
+            snapshots = cached
+        }
+        historyByDevice = await historyStore.all()
+    }
+
+    private func prepareRemoteChanges() async {
+        do {
+            try await cloud.prepareForRemoteChanges()
+        } catch {
+            syncIssue = issue(for: error)
+        }
+    }
+
+    private func reportLocalIfNeeded(force: Bool) async -> Bool {
         let current = batteryReader.read()
         localSnapshot = current
         merge(current)
+        await persistObservedState()
 
         let shouldPublish: Bool
         if force || lastPublished == nil {
@@ -117,37 +165,47 @@ final class BatteryDashboardStore: ObservableObject {
             shouldPublish = true
         }
 
-        guard shouldPublish else { return }
+        guard shouldPublish else { return true }
 
         do {
             try await cloud.upsert(current)
             lastPublished = current
             syncIssue = nil
+            return true
         } catch {
             syncIssue = issue(for: error)
+            return false
         }
     }
 
-    private func loadRemote() async {
+    private func loadRemote() async -> Bool {
         do {
             let remote = try await cloud.fetchAll()
-
-            // The device currently running PowerMesh is authoritative for its
-            // own battery state. CloudKit may lag immediately after an upload.
-            snapshots = BatterySnapshotReconciler.merge(
-                remote: remote,
-                local: localSnapshot
-            )
+            snapshots = BatterySnapshotReconciler.merge(remote: remote, local: localSnapshot)
             lastRemoteRefresh = .now
+            lastSuccessfulSync = .now
             syncIssue = nil
+            await persistObservedState()
+            return true
         } catch {
-            // Keep the last good dashboard and the current local reading rather
-            // than replacing everything with an incomplete/failed cloud fetch.
-            if let localSnapshot {
-                merge(localSnapshot)
-            }
+            if let localSnapshot { merge(localSnapshot) }
+            await persistObservedState()
             syncIssue = issue(for: error)
+            return false
         }
+    }
+
+    private func persistObservedState() async {
+        await cache.save(snapshots)
+        await historyStore.record(snapshots)
+        historyByDevice = await historyStore.all()
+
+        let raw = UserDefaults.standard.string(forKey: AppLanguage.storageKey)
+        let language = raw.flatMap(AppLanguage.init(rawValue:)) ?? .system
+        await BatteryNotificationService.evaluate(
+            snapshots: snapshots,
+            language: language
+        )
     }
 
     private func issue(for error: Error) -> DashboardSyncIssue {
