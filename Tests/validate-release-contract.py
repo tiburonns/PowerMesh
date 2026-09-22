@@ -102,6 +102,14 @@ watch_dependency_lines = [
 if not any("platformFilter = ios;" in line for line in watch_dependency_lines):
     fail("Watch contract failed: host dependency on Watch target is not iOS-only")
 
+pbx_like_ids = set(re.findall(r"\b([A-Z0-9]{24})\b", project))
+invalid_pbx_ids = sorted(
+    value for value in pbx_like_ids
+    if re.fullmatch(r"[A-F0-9]{24}", value) is None
+)
+if invalid_pbx_ids:
+    fail(f"Xcode project contract failed: non-hex PBX IDs {invalid_pbx_ids}")
+
 pbx_ids = set(re.findall(r"\b([A-F0-9]{24})\b", project))
 pbx_definitions = set(
     re.findall(r"^\s*([A-F0-9]{24})\s+(?:/\*.*?\*/\s+)?=\s+\{", project, re.MULTILINE)

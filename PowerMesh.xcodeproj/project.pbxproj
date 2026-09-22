@@ -52,17 +52,17 @@
 
 		A70010000000000000000001 /* AccessoryBatteryScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000001 /* AccessoryBatteryScanner.swift */; };
 		A70020000000000000000001 /* AccessoryBatteryScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70000000000000000000001 /* AccessoryBatteryScanner.swift */; };
-		A70010000000000000000002 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = V70000000000000000000001 /* InfoPlist.strings */; };
-		A70020000000000000000002 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = V70000000000000000000001 /* InfoPlist.strings */; };
-		A80000000000000000000001 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = V80000000000000000000001 /* Localizable.strings */; };
+		A70010000000000000000002 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A97000000000000000000001 /* InfoPlist.strings */; };
+		A70020000000000000000002 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A97000000000000000000001 /* InfoPlist.strings */; };
+		A80000000000000000000001 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A98000000000000000000001 /* Localizable.strings */; };
 		A90000000000000000000001 /* PowerMeshWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* PowerMeshWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A80000000000000000000002 /* PrivacyInfo.xcprivacy in Widget Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		G10000000000000000000001 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = E00000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = E30000000000000000000001; remoteInfo = PowerMeshWidgets; };
-		G20000000000000000000001 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = E00000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = E30000000000000000000001; remoteInfo = PowerMeshWidgets; };
-		G30000000000000000000001 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = E00000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = E20000000000000000000001; remoteInfo = PowerMeshWatch; };
+		A91000000000000000000001 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = E00000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = E30000000000000000000001; remoteInfo = PowerMeshWidgets; };
+		A92000000000000000000001 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = E00000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = E30000000000000000000001; remoteInfo = PowerMeshWidgets; };
+		A93000000000000000000001 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = E00000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = E20000000000000000000001; remoteInfo = PowerMeshWatch; };
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -122,7 +122,7 @@
 		};
 		D10000000000000000000001 /* PowerMesh */ = {
 			isa = PBXGroup;
-			children = (D11000000000000000000001 /* App */, D11000000000000000000002 /* Models */, D11000000000000000000003 /* Services */, D11000000000000000000004 /* Support */, D11000000000000000000005 /* Views */, B1000000000000000000000C /* PowerMesh.entitlements */, B1000000000000000000000D /* PowerMeshWatch.entitlements */, B60000000000000000000001 /* PowerMeshMac.entitlements */, B1000000000000000000000E /* PrivacyInfo.xcprivacy */, B50000000000000000000001 /* Info.plist */, V70000000000000000000001 /* InfoPlist.strings */);
+			children = (D11000000000000000000001 /* App */, D11000000000000000000002 /* Models */, D11000000000000000000003 /* Services */, D11000000000000000000004 /* Support */, D11000000000000000000005 /* Views */, B1000000000000000000000C /* PowerMesh.entitlements */, B1000000000000000000000D /* PowerMeshWatch.entitlements */, B60000000000000000000001 /* PowerMeshMac.entitlements */, B1000000000000000000000E /* PrivacyInfo.xcprivacy */, B50000000000000000000001 /* Info.plist */, A97000000000000000000001 /* InfoPlist.strings */);
 			path = PowerMesh;
 			sourceTree = "<group>";
 		};
@@ -131,7 +131,7 @@
 		D11000000000000000000003 /* Services */ = {isa = PBXGroup; children = (B10000000000000000000003 /* BatteryDashboardStore.swift */, B10000000000000000000004 /* CloudBatteryStore.swift */, B10000000000000000000005 /* DeviceIdentity.swift */, B10000000000000000000006 /* LocalBatteryReader.swift */, B30000000000000000000002 /* PowerMeshStorage.swift */, B30000000000000000000003 /* BatteryNotificationService.swift */, B30000000000000000000004 /* BackgroundRefreshCoordinator.swift */, B70000000000000000000001 /* AccessoryBatteryScanner.swift */); path = Services; sourceTree = "<group>"; };
 		D11000000000000000000004 /* Support */ = {isa = PBXGroup; children = (B10000000000000000000007 /* AppLanguage.swift */, B30000000000000000000005 /* AppLifecycle.swift */); path = Support; sourceTree = "<group>"; };
 		D11000000000000000000005 /* Views */ = {isa = PBXGroup; children = (B10000000000000000000008 /* BatteryCard.swift */, B10000000000000000000009 /* CompactMenuView.swift */, B1000000000000000000000A /* DashboardView.swift */, B1000000000000000000000B /* SettingsView.swift */, B30000000000000000000006 /* DeviceDetailView.swift */); path = Views; sourceTree = "<group>"; };
-		D40000000000000000000001 /* PowerMeshWidgets */ = {isa = PBXGroup; children = (B40000000000000000000001 /* PowerMeshWidgets.swift */, B40000000000000000000002 /* BatteryOverviewWidget.swift */, B40000000000000000000003 /* PowerMeshWidgets.entitlements */, B90000000000000000000001 /* Info.plist */, V80000000000000000000001 /* Localizable.strings */); path = PowerMeshWidgets; sourceTree = "<group>"; };
+		D40000000000000000000001 /* PowerMeshWidgets */ = {isa = PBXGroup; children = (B40000000000000000000001 /* PowerMeshWidgets.swift */, B40000000000000000000002 /* BatteryOverviewWidget.swift */, B40000000000000000000003 /* PowerMeshWidgets.entitlements */, B90000000000000000000001 /* Info.plist */, A98000000000000000000001 /* Localizable.strings */); path = PowerMeshWidgets; sourceTree = "<group>"; };
 		D10000000000000000000003 /* Products */ = {isa = PBXGroup; children = (B10000000000000000000010 /* PowerMesh.app */, B10000000000000000000011 /* PowerMeshWatch.app */, B40000000000000000000010 /* PowerMeshWidgets.appex */); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
@@ -141,7 +141,7 @@
 			buildConfigurationList = F10000000000000000000001;
 			buildPhases = (C10000000000000000000002 /* Sources */, C10000000000000000000001 /* Frameworks */, C10000000000000000000003 /* Resources */, C10000000000000000000004 /* Embed App Extensions */, C10000000000000000000005 /* Embed Watch Content */);
 			buildRules = ();
-			dependencies = (H10000000000000000000001 /* PBXTargetDependency */, H30000000000000000000001 /* PBXTargetDependency */);
+			dependencies = (A94000000000000000000001 /* PBXTargetDependency */, A96000000000000000000001 /* PBXTargetDependency */);
 			name = PowerMesh;
 			productName = PowerMesh;
 			productReference = B10000000000000000000010 /* PowerMesh.app */;
@@ -152,7 +152,7 @@
 			buildConfigurationList = F20000000000000000000001;
 			buildPhases = (C20000000000000000000002 /* Sources */, C20000000000000000000001 /* Frameworks */, C20000000000000000000003 /* Resources */, C20000000000000000000004 /* Embed App Extensions */);
 			buildRules = ();
-			dependencies = (H20000000000000000000001 /* PBXTargetDependency */);
+			dependencies = (A95000000000000000000001 /* PBXTargetDependency */);
 			name = PowerMeshWatch;
 			productName = PowerMeshWatch;
 			productReference = B10000000000000000000011 /* PowerMeshWatch.app */;
@@ -200,9 +200,15 @@
 		C30000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A40000000000000000000001, A40000000000000000000002); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		A94000000000000000000001 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = E30000000000000000000001 /* PowerMeshWidgets */; targetProxy = A91000000000000000000001 /* PBXContainerItemProxy */; };
+		A95000000000000000000001 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = E30000000000000000000001 /* PowerMeshWidgets */; targetProxy = A92000000000000000000001 /* PBXContainerItemProxy */; };
+		A96000000000000000000001 /* PBXTargetDependency */ = {isa = PBXTargetDependency; platformFilter = ios; target = E20000000000000000000001 /* PowerMeshWatch */; targetProxy = A93000000000000000000001 /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
-		V80000000000000000000001 /* Localizable.strings */ = {isa = PBXVariantGroup; children = (B80000000000000000000001 /* en */, B80000000000000000000002 /* es */); name = Localizable.strings; sourceTree = "<group>"; };
-		V70000000000000000000001 /* InfoPlist.strings */ = {isa = PBXVariantGroup; children = (B70000000000000000000002 /* en */, B70000000000000000000003 /* es */); name = InfoPlist.strings; sourceTree = "<group>"; };
+		A98000000000000000000001 /* Localizable.strings */ = {isa = PBXVariantGroup; children = (B80000000000000000000001 /* en */, B80000000000000000000002 /* es */); name = Localizable.strings; sourceTree = "<group>"; };
+		A97000000000000000000001 /* InfoPlist.strings */ = {isa = PBXVariantGroup; children = (B70000000000000000000002 /* en */, B70000000000000000000003 /* es */); name = InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
