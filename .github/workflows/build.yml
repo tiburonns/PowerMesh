@@ -51,6 +51,7 @@ jobs:
           plutil -lint PowerMesh/PowerMesh.entitlements
           plutil -lint PowerMesh/PowerMeshWatch.entitlements
           plutil -lint PowerMeshWidgets/PowerMeshWidgets.entitlements
+          plutil -lint PowerMeshWidgets/Info.plist
       - name: Run core tests
         if: matrix.name == 'macOS'
         run: zsh Tests/run-core-tests.sh

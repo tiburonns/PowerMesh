@@ -61,10 +61,28 @@ for required in [
     "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMeshWatch.entitlements;",
     "CODE_SIGN_ENTITLEMENTS = PowerMeshWidgets/PowerMeshWidgets.entitlements;",
     "PowerMeshWidgets.appex",
-    "com.apple.widgetkit-extension",
+    "INFOPLIST_FILE = PowerMeshWidgets/Info.plist;",
 ]:
     if required not in project:
         fail(f"Xcode target contract failed: missing {required}")
+
+if "INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier" in project:
+    fail("widget contract failed: nested NSExtension must come from a real Info.plist")
+
+pbx_ids = set(re.findall(r"\b([A-F0-9]{24})\b", project))
+pbx_definitions = set(
+    re.findall(r"^\s*([A-F0-9]{24})\s+(?:/\*.*?\*/\s+)?=\s+\{", project, re.MULTILINE)
+)
+undefined_pbx_ids = sorted(pbx_ids - pbx_definitions)
+if undefined_pbx_ids:
+    fail(f"Xcode project contract failed: undefined PBX IDs {undefined_pbx_ids}")
+
+widget_info = load(ROOT / "PowerMeshWidgets/Info.plist")
+extension = widget_info.get("NSExtension")
+if not isinstance(extension, dict):
+    fail("widget contract failed: NSExtension dictionary is missing")
+if extension.get("NSExtensionPointIdentifier") != "com.apple.widgetkit-extension":
+    fail("widget contract failed: incorrect NSExtensionPointIdentifier")
 
 # DebugLocal must remain installable without paid CloudKit/App Group capabilities.
 if "POWERMESH_LOCAL_ONLY" not in project:
