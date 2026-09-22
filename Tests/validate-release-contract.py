@@ -32,6 +32,37 @@ if "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMesh.entitlements;" not in project:
 if "CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMeshWatch.entitlements;" not in project:
     raise SystemExit("CloudKit contract failed: Watch target entitlements are not wired")
 
+if 'name = DebugLocal;' not in project:
+    raise SystemExit("local-test contract failed: DebugLocal configuration is missing")
+if 'POWERMESH_LOCAL_ONLY' not in project:
+    raise SystemExit("local-test contract failed: POWERMESH_LOCAL_ONLY is not configured")
+if 'PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.local;' not in project:
+    raise SystemExit("local-test contract failed: local bundle identifier is missing")
+if 'F11000000000000000000003 /* DebugLocal */' in project:
+    debug_local = project.split(
+        'F11000000000000000000003 /* DebugLocal */', 1
+    )[1].split('name = DebugLocal;', 1)[0]
+    if "CODE_SIGN_ENTITLEMENTS" in debug_local:
+        raise SystemExit(
+            "local-test contract failed: DebugLocal must not require CloudKit entitlements"
+        )
+
+cloud_store = (
+    ROOT / "PowerMesh/Services/CloudBatteryStore.swift"
+).read_text(encoding="utf-8")
+if "FileManager.default.ubiquityIdentityToken" in cloud_store:
+    raise SystemExit(
+        "CloudKit contract failed: CloudKit availability must not depend on iCloud Drive"
+    )
+if "CKContainer(identifier: Self.containerIdentifier)" not in cloud_store:
+    raise SystemExit(
+        "CloudKit contract failed: the declared private container is not selected explicitly"
+    )
+if "accountStatus()" not in cloud_store:
+    raise SystemExit(
+        "CloudKit contract failed: account availability is not checked with CloudKit"
+    )
+
 def load(path):
     with path.open("rb") as handle:
         return plistlib.load(handle)
