@@ -112,6 +112,7 @@ if "PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.local;" not in project:
 
 for config_id in [
     "F11000000000000000000003 /* DebugLocal */",
+    "F21000000000000000000003 /* DebugLocal */",
     "F31000000000000000000003 /* DebugLocal */",
 ]:
     if config_id not in project:
@@ -119,6 +120,13 @@ for config_id in [
     block = project.split(config_id, 1)[1].split("name = DebugLocal;", 1)[0]
     if "CODE_SIGN_ENTITLEMENTS" in block:
         fail(f"local-test contract failed: {config_id} must not require entitlements")
+
+if "PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.local.watchkitapp;" not in project:
+    fail("local-test contract failed: local Watch bundle identifier is missing")
+if '"PRODUCT_BUNDLE_IDENTIFIER[sdk=watchos*]" = com.tiburonns.PowerMesh.local.watchkitapp.widgets;' not in project:
+    fail("local-test contract failed: local Watch widget bundle identifier is missing")
+if not (ROOT / "PowerMesh.xcodeproj/xcshareddata/xcschemes/PowerMeshWatch Local.xcscheme").exists():
+    fail("local-test contract failed: PowerMeshWatch Local scheme is missing")
 
 cloud_store = (ROOT / "PowerMesh/Services/CloudBatteryStore.swift").read_text(encoding="utf-8")
 for required in [

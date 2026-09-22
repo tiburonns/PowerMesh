@@ -19,7 +19,7 @@ Targets: `PowerMesh`, `PowerMeshWatch`, `PowerMeshWidgets`. Minimums: iOS/iPadOS
 
 ## Before membership
 
-Use **PowerMesh Local**. Its `DebugLocal` configuration uses `com.tiburonns.PowerMesh.local` and doesn't attach CloudKit/App Group entitlement files. Use it for UI, local battery, language, history, and basic behavior tests.
+Use **PowerMesh Local** for iPhone/iPad/Mac and **PowerMeshWatch Local** for Apple Watch. Their `DebugLocal` configurations use separate `.local` bundle identifiers and don't attach CloudKit/App Group entitlement files. Use them for UI, local battery, language, history, and basic behavior tests before paid-team provisioning.
 
 ## Signed ecosystem setup
 
@@ -59,7 +59,7 @@ Targets: `PowerMesh`, `PowerMeshWatch` y `PowerMeshWidgets`. Mínimos: iOS/iPadO
 
 ## Antes de la membresía
 
-Usa **PowerMesh Local**. `DebugLocal` usa `com.tiburonns.PowerMesh.local` y no conecta los entitlements CloudKit/App Group. Sirve para UI, batería local, idioma, historial y comportamiento básico.
+Usa **PowerMesh Local** para iPhone/iPad/Mac y **PowerMeshWatch Local** para Apple Watch. Sus configuraciones `DebugLocal` usan bundle identifiers `.local` separados y no conectan entitlements CloudKit/App Group. Sirven para UI, batería local, idioma, historial y comportamiento básico antes del aprovisionamiento de pago.
 
 ## Configuración firmada
 

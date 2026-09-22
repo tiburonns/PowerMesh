@@ -37,6 +37,10 @@ jobs:
             scheme: PowerMeshWatch
             configuration: Debug
             destination: generic/platform=watchOS Simulator
+          - name: watchOS Local
+            scheme: PowerMeshWatch Local
+            configuration: DebugLocal
+            destination: generic/platform=watchOS Simulator
           - name: Widget iOS
             scheme: PowerMeshWidgets
             configuration: Debug

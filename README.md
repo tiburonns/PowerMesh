@@ -18,7 +18,8 @@ PowerMesh is a multilingual SwiftUI battery dashboard for the Apple ecosystem. /
 - `PowerMesh` — iPhone, iPad, and native macOS.
 - `PowerMeshWatch` — Apple Watch.
 - `PowerMeshWidgets` — iPhone/iPad/macOS widgets and modern Apple Watch complications.
-- `PowerMesh Local` — CloudKit/App Group-free smoke testing before paid-team provisioning.
+- `PowerMesh Local` — CloudKit/App Group-free iPhone/iPad/Mac smoke testing before paid-team provisioning.
+- `PowerMeshWatch Local` — matching CloudKit/App Group-free Watch smoke testing.
 
 ## Implemented in 0.2
 
@@ -84,7 +85,8 @@ No custom PowerMesh account or external PowerMesh server is required. Synced rec
 - `PowerMesh` — iPhone, iPad y macOS nativo.
 - `PowerMeshWatch` — Apple Watch.
 - `PowerMeshWidgets` — widgets de iPhone/iPad/macOS y complications modernas de Apple Watch.
-- `PowerMesh Local` — pruebas sin CloudKit/App Group antes del aprovisionamiento con equipo de pago.
+- `PowerMesh Local` — pruebas iPhone/iPad/Mac sin CloudKit/App Group antes del aprovisionamiento con equipo de pago.
+- `PowerMeshWatch Local` — ruta equivalente para Apple Watch sin capabilities de pago.
 
 ## Implementado en 0.2
 
