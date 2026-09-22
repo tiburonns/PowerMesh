@@ -7,9 +7,6 @@ enum AccessoryBatterySettings {
 
 @MainActor
 final class AccessoryBatteryScanner: NSObject {
-    private static let batteryService = CBUUID(string: "180F")
-    private static let batteryLevelCharacteristic = CBUUID(string: "2A19")
-
     var onSnapshot: ((BatterySnapshot) -> Void)?
 
     private var central: CBCentralManager?
@@ -53,13 +50,13 @@ final class AccessoryBatteryScanner: NSObject {
         stopScanTask?.cancel()
 
         for peripheral in central.retrieveConnectedPeripherals(
-            withServices: [Self.batteryService]
+            withServices: [CBUUID(string: "180F")]
         ) {
             observe(peripheral)
         }
 
         central.scanForPeripherals(
-            withServices: [Self.batteryService],
+            withServices: [CBUUID(string: "180F")],
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
         )
 
@@ -76,7 +73,7 @@ final class AccessoryBatteryScanner: NSObject {
 
         switch peripheral.state {
         case .connected:
-            peripheral.discoverServices([Self.batteryService])
+            peripheral.discoverServices([CBUUID(string: "180F")])
         case .disconnected:
             central?.connect(peripheral)
         default:
@@ -133,7 +130,7 @@ extension AccessoryBatteryScanner: CBCentralManagerDelegate {
             guard let self else { return }
             self.peripherals[peripheral.identifier] = peripheral
             peripheral.delegate = self
-            peripheral.discoverServices([Self.batteryService])
+            peripheral.discoverServices([CBUUID(string: "180F")])
         }
     }
 }
@@ -146,10 +143,10 @@ extension AccessoryBatteryScanner: CBPeripheralDelegate {
         guard error == nil else { return }
         Task { @MainActor in
             peripheral.services?
-                .filter { $0.uuid == Self.batteryService }
+                .filter { $0.uuid == CBUUID(string: "180F") }
                 .forEach {
                     peripheral.discoverCharacteristics(
-                        [Self.batteryLevelCharacteristic],
+                        [CBUUID(string: "2A19")],
                         for: $0
                     )
                 }
@@ -164,7 +161,7 @@ extension AccessoryBatteryScanner: CBPeripheralDelegate {
         guard error == nil else { return }
         Task { @MainActor in
             service.characteristics?
-                .filter { $0.uuid == Self.batteryLevelCharacteristic }
+                .filter { $0.uuid == CBUUID(string: "2A19") }
                 .forEach { characteristic in
                     peripheral.readValue(for: characteristic)
                     if characteristic.properties.contains(.notify) {
@@ -180,7 +177,7 @@ extension AccessoryBatteryScanner: CBPeripheralDelegate {
         error: Error?
     ) {
         guard error == nil,
-              characteristic.uuid == Self.batteryLevelCharacteristic,
+              characteristic.uuid == CBUUID(string: "2A19"),
               let value = characteristic.value?.first else { return }
 
         Task { @MainActor [weak self] in

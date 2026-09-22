@@ -44,11 +44,11 @@ jobs:
           - name: Widget iOS
             scheme: PowerMeshWidgets
             configuration: Debug
-            destination: generic/platform=iOS Simulator
+            sdk: iphonesimulator
           - name: Widget watchOS
             scheme: PowerMeshWatchWidgets
             configuration: Debug
-            destination: generic/platform=watchOS Simulator
+            sdk: watchsimulator
     name: ${{ matrix.name }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -70,11 +70,22 @@ jobs:
         if: matrix.name == 'macOS'
         run: zsh Tests/run-core-tests.sh
       - name: Build ${{ matrix.name }}
+        if: matrix.sdk == null
         run: |
           xcodebuild \
             -project PowerMesh.xcodeproj \
             -scheme "${{ matrix.scheme }}" \
             -configuration "${{ matrix.configuration }}" \
             -destination '${{ matrix.destination }}' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+      - name: Build ${{ matrix.name }} extension
+        if: matrix.sdk != null
+        run: |
+          xcodebuild \
+            -project PowerMesh.xcodeproj \
+            -scheme "${{ matrix.scheme }}" \
+            -configuration "${{ matrix.configuration }}" \
+            -sdk "${{ matrix.sdk }}" \
             CODE_SIGNING_ALLOWED=NO \
             build

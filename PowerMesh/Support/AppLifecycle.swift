@@ -26,7 +26,7 @@ final class PowerMeshBackgroundRouter {
 }
 
 #if os(iOS)
-import UIKit
+@preconcurrency import UIKit
 
 final class PowerMeshAppDelegate: NSObject, UIApplicationDelegate {
     func application(
@@ -40,7 +40,7 @@ final class PowerMeshAppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 
-    func application(
+    nonisolated func application(
         _ application: UIApplication,
         didReceiveRemoteNotification userInfo: [AnyHashable: Any]
     ) async -> UIBackgroundFetchResult {
@@ -80,7 +80,7 @@ final class PowerMeshMacAppDelegate: NSObject, NSApplicationDelegate {
 
 
 #if os(watchOS)
-import WatchKit
+@preconcurrency import WatchKit
 
 final class PowerMeshWatchAppDelegate: NSObject, WKApplicationDelegate {
     func applicationDidFinishLaunching() {
