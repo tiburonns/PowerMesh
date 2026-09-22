@@ -62,12 +62,32 @@ for required in [
     "CODE_SIGN_ENTITLEMENTS = PowerMeshWidgets/PowerMeshWidgets.entitlements;",
     "PowerMeshWidgets.appex",
     "INFOPLIST_FILE = PowerMeshWidgets/Info.plist;",
+    "PowerMeshWatch.app in Embed Watch Content",
+    'name = "Embed Watch Content";',
+    "dstSubfolderSpec = 13;",
+    "platformFilter = ios;",
 ]:
     if required not in project:
         fail(f"Xcode target contract failed: missing {required}")
 
 if "INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier" in project:
     fail("widget contract failed: nested NSExtension must come from a real Info.plist")
+
+watch_embed_marker = "PowerMeshWatch.app in Embed Watch Content"
+watch_embed_entries = [
+    line for line in project.splitlines()
+    if watch_embed_marker in line and "PBXBuildFile" in line
+]
+if not any("platformFilter = ios;" in line for line in watch_embed_entries):
+    fail("Watch contract failed: embedded Watch app is not filtered to the iOS host")
+
+watch_dependency_lines = [
+    line for line in project.splitlines()
+    if "PBXTargetDependency" in line
+    and "target = E20000000000000000000001" in line
+]
+if not any("platformFilter = ios;" in line for line in watch_dependency_lines):
+    fail("Watch contract failed: host dependency on Watch target is not iOS-only")
 
 pbx_ids = set(re.findall(r"\b([A-F0-9]{24})\b", project))
 pbx_definitions = set(
@@ -168,6 +188,9 @@ if keys != english_keys:
     fail(f"localization contract failed: English mismatch missing={sorted(keys-english_keys)} extra={sorted(english_keys-keys)}")
 if keys != spanish_keys:
     fail(f"localization contract failed: Spanish mismatch missing={sorted(keys-spanish_keys)} extra={sorted(spanish_keys-keys)}")
+
+if "PrivacyInfo.xcprivacy in Widget Resources" not in project:
+    fail("privacy contract failed: widget target must embed a PrivacyInfo.xcprivacy")
 
 privacy = load(ROOT / "PowerMesh/PrivacyInfo.xcprivacy")
 if privacy.get("NSPrivacyTracking") is not False:
