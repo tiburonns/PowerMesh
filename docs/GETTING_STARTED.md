@@ -25,7 +25,9 @@ Minimum versions for the first MVP are iOS/iPadOS 17, macOS 14, and watchOS 10.
 
 ## First test without CloudKit
 
-For the fastest smoke test, select the `PowerMesh` scheme and run it on **My Mac** or an iPhone/iPad simulator. The app can read/display the current device battery where the simulator/platform exposes it. CloudKit synchronization may show an error until signing and the iCloud capability are configured.
+For the first physical iPhone/iPad installation, select the **`PowerMesh Local`** scheme. This scheme uses the `DebugLocal` configuration, the separate bundle identifier `com.tiburonns.PowerMesh.local`, and **does not request any iCloud/CloudKit entitlements**. It is intended specifically for validating installation, UI, local battery reading, language selection, and general behavior before the developer-account CloudKit setup is complete.
+
+The regular **`PowerMesh`** scheme remains the CloudKit-enabled build and should be used only after the App ID and iCloud container are correctly configured for the selected Apple Developer team.
 
 On macOS you can also run:
 
@@ -93,7 +95,9 @@ Las versiones mínimas del primer MVP son iOS/iPadOS 17, macOS 14 y watchOS 10.
 
 ## Primera prueba sin CloudKit
 
-Para la prueba más rápida, selecciona el esquema `PowerMesh` y ejecútalo en **My Mac** o en un simulador de iPhone/iPad. La app puede leer/mostrar la batería del dispositivo actual cuando la plataforma o el simulador la exponga. La sincronización de CloudKit puede mostrar un error hasta que configures la firma y la capacidad de iCloud.
+Para la primera instalación física en iPhone/iPad, selecciona el esquema **`PowerMesh Local`**. Este esquema usa la configuración `DebugLocal`, el bundle identifier independiente `com.tiburonns.PowerMesh.local` y **no solicita ningún entitlement de iCloud/CloudKit**. Está pensado específicamente para validar instalación, interfaz, lectura de batería local, selector de idioma y funcionamiento general antes de completar la configuración de CloudKit en la cuenta de desarrollador.
+
+El esquema normal **`PowerMesh`** conserva CloudKit y debe usarse después de configurar correctamente el App ID y el contenedor de iCloud para el equipo de Apple Developer seleccionado.
 
 En macOS también puedes ejecutar:
 
