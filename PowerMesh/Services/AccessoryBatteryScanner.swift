@@ -21,6 +21,9 @@ final class AccessoryBatteryScanner: NSObject {
         guard isEnabled else { return }
 
         if central == nil {
+            // CoreBluetooth delivers callbacks on the queue supplied here.
+            // Keeping that queue on the main actor lets the scanner own all
+            // non-Sendable CoreBluetooth objects without actor hops.
             central = CBCentralManager(delegate: self, queue: .main)
         } else {
             scanIfReady()
@@ -101,77 +104,67 @@ final class AccessoryBatteryScanner: NSObject {
     }
 }
 
-extension AccessoryBatteryScanner: CBCentralManagerDelegate {
-    nonisolated func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            if central.state == .poweredOn {
-                self.scanIfReady()
-            }
+extension AccessoryBatteryScanner: @preconcurrency CBCentralManagerDelegate {
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        if central.state == .poweredOn {
+            scanIfReady()
         }
     }
 
-    nonisolated func centralManager(
+    func centralManager(
         _ central: CBCentralManager,
         didDiscover peripheral: CBPeripheral,
         advertisementData: [String: Any],
         rssi RSSI: NSNumber
     ) {
-        Task { @MainActor [weak self] in
-            self?.observe(peripheral)
-        }
+        observe(peripheral)
     }
 
-    nonisolated func centralManager(
+    func centralManager(
         _ central: CBCentralManager,
         didConnect peripheral: CBPeripheral
     ) {
-        Task { @MainActor [weak self] in
-            guard let self else { return }
-            self.peripherals[peripheral.identifier] = peripheral
-            peripheral.delegate = self
-            peripheral.discoverServices([CBUUID(string: "180F")])
-        }
+        peripherals[peripheral.identifier] = peripheral
+        peripheral.delegate = self
+        peripheral.discoverServices([CBUUID(string: "180F")])
     }
 }
 
-extension AccessoryBatteryScanner: CBPeripheralDelegate {
-    nonisolated func peripheral(
+extension AccessoryBatteryScanner: @preconcurrency CBPeripheralDelegate {
+    func peripheral(
         _ peripheral: CBPeripheral,
         didDiscoverServices error: Error?
     ) {
         guard error == nil else { return }
-        Task { @MainActor in
-            peripheral.services?
-                .filter { $0.uuid == CBUUID(string: "180F") }
-                .forEach {
-                    peripheral.discoverCharacteristics(
-                        [CBUUID(string: "2A19")],
-                        for: $0
-                    )
-                }
-        }
+
+        peripheral.services?
+            .filter { $0.uuid == CBUUID(string: "180F") }
+            .forEach {
+                peripheral.discoverCharacteristics(
+                    [CBUUID(string: "2A19")],
+                    for: $0
+                )
+            }
     }
 
-    nonisolated func peripheral(
+    func peripheral(
         _ peripheral: CBPeripheral,
         didDiscoverCharacteristicsFor service: CBService,
         error: Error?
     ) {
         guard error == nil else { return }
-        Task { @MainActor in
-            service.characteristics?
-                .filter { $0.uuid == CBUUID(string: "2A19") }
-                .forEach { characteristic in
-                    peripheral.readValue(for: characteristic)
-                    if characteristic.properties.contains(.notify) {
-                        peripheral.setNotifyValue(true, for: characteristic)
-                    }
+
+        service.characteristics?
+            .filter { $0.uuid == CBUUID(string: "2A19") }
+            .forEach { characteristic in
+                peripheral.readValue(for: characteristic)
+                if characteristic.properties.contains(.notify) {
+                    peripheral.setNotifyValue(true, for: characteristic)
                 }
-        }
+            }
     }
 
-    nonisolated func peripheral(
+    func peripheral(
         _ peripheral: CBPeripheral,
         didUpdateValueFor characteristic: CBCharacteristic,
         error: Error?
@@ -180,8 +173,6 @@ extension AccessoryBatteryScanner: CBPeripheralDelegate {
               characteristic.uuid == CBUUID(string: "2A19"),
               let value = characteristic.value?.first else { return }
 
-        Task { @MainActor [weak self] in
-            self?.publish(Int(value), from: peripheral)
-        }
+        publish(Int(value), from: peripheral)
     }
 }

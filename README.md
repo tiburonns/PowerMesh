@@ -11,7 +11,7 @@ PowerMesh is a multilingual SwiftUI battery dashboard for the Apple ecosystem. /
 
 ## Status
 
-> **Current `main`: 0.2.0 (build 12).** Feature-complete for the first signed ecosystem acceptance pass. The remaining release gate is physical-device validation of Apple-provisioned capabilities and real hardware behavior.
+> **Current `main`: 0.2.0 (build 13).** Feature-complete for the first signed ecosystem acceptance pass. The remaining release gate is physical-device validation of Apple-provisioned capabilities and real hardware behavior.
 
 ### Xcode targets
 
@@ -79,7 +79,7 @@ No custom PowerMesh account or external PowerMesh server is required. Synced rec
 
 ## Estado
 
-> **`main` actual: 0.2.0 (build 12).** Funcionalmente completo para la primera aceptación firmada del ecosistema. La puerta restante es validar en hardware real las capacidades aprovisionadas por Apple.
+> **`main` actual: 0.2.0 (build 13).** Funcionalmente completo para la primera aceptación firmada del ecosistema. La puerta restante es validar en hardware real las capacidades aprovisionadas por Apple.
 
 ### Targets de Xcode
 

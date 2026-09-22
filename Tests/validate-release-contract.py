@@ -400,6 +400,31 @@ for required in ["SWIFT_STRICT_CONCURRENCY=complete", "SWIFT_TREAT_WARNINGS_AS_E
     if required not in workflow_source:
         fail(f"strict concurrency CI contract failed: missing {required}")
 lifecycle_source = (ROOT / "PowerMesh/Support/AppLifecycle.swift").read_text(encoding="utf-8")
-for required in ["@preconcurrency UIApplicationDelegate", "@preconcurrency WKApplicationDelegate"]:
+for required in [
+    "fetchCompletionHandler completionHandler",
+    "UIBackgroundFetchResult",
+    "WKBackgroundFetchResult",
+]:
     if required not in lifecycle_source:
         fail(f"delegate concurrency contract failed: missing {required}")
+for forbidden in [
+    "async -> UIBackgroundFetchResult",
+    "async -> WKBackgroundFetchResult",
+]:
+    if forbidden in lifecycle_source:
+        fail(f"delegate concurrency contract failed: async non-Sendable payload path remains: {forbidden}")
+
+ble_source = (ROOT / "PowerMesh/Services/AccessoryBatteryScanner.swift").read_text(encoding="utf-8")
+for required in [
+    "@preconcurrency CBCentralManagerDelegate",
+    "@preconcurrency CBPeripheralDelegate",
+    "CBCentralManager(delegate: self, queue: .main)",
+]:
+    if required not in ble_source:
+        fail(f"Bluetooth concurrency contract failed: missing {required}")
+for forbidden in [
+    "nonisolated func centralManager",
+    "nonisolated func peripheral",
+]:
+    if forbidden in ble_source:
+        fail(f"Bluetooth concurrency contract failed: actor-hopping delegate remains: {forbidden}")

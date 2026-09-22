@@ -28,7 +28,7 @@ final class PowerMeshBackgroundRouter {
 #if os(iOS)
 import UIKit
 
-final class PowerMeshAppDelegate: NSObject, @preconcurrency UIApplicationDelegate {
+final class PowerMeshAppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
@@ -40,15 +40,20 @@ final class PowerMeshAppDelegate: NSObject, @preconcurrency UIApplicationDelegat
         return true
     }
 
-    nonisolated func application(
+    func application(
         _ application: UIApplication,
-        didReceiveRemoteNotification userInfo: [AnyHashable: Any]
-    ) async -> UIBackgroundFetchResult {
+        didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+    ) {
         guard CKNotification(fromRemoteNotificationDictionary: userInfo) != nil else {
-            return .noData
+            completionHandler(.noData)
+            return
         }
 
-        return await PowerMeshBackgroundRouter.shared.refresh() ? .newData : .failed
+        Task { @MainActor in
+            let success = await PowerMeshBackgroundRouter.shared.refresh()
+            completionHandler(success ? .newData : .failed)
+        }
     }
 }
 #endif
@@ -82,21 +87,26 @@ final class PowerMeshMacAppDelegate: NSObject, NSApplicationDelegate {
 #if os(watchOS)
 import WatchKit
 
-final class PowerMeshWatchAppDelegate: NSObject, @preconcurrency WKApplicationDelegate {
+final class PowerMeshWatchAppDelegate: NSObject, WKApplicationDelegate {
     func applicationDidFinishLaunching() {
         #if !POWERMESH_LOCAL_ONLY
         WKApplication.shared().registerForRemoteNotifications()
         #endif
     }
 
-    nonisolated func didReceiveRemoteNotification(
-        _ userInfo: [AnyHashable: Any]
-    ) async -> WKBackgroundFetchResult {
+    func didReceiveRemoteNotification(
+        _ userInfo: [AnyHashable: Any],
+        fetchCompletionHandler completionHandler: @escaping (WKBackgroundFetchResult) -> Void
+    ) {
         guard CKNotification(fromRemoteNotificationDictionary: userInfo) != nil else {
-            return .noData
+            completionHandler(.noData)
+            return
         }
 
-        return await PowerMeshBackgroundRouter.shared.refresh() ? .newData : .failed
+        Task { @MainActor in
+            let success = await PowerMeshBackgroundRouter.shared.refresh()
+            completionHandler(success ? .newData : .failed)
+        }
     }
 }
 #endif
