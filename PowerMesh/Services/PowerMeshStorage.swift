@@ -6,7 +6,20 @@ enum PowerMeshStorage {
     static let historyKey = "powermesh.cache.history.v1"
 
     static var sharedDefaults: UserDefaults {
-        UserDefaults(suiteName: appGroupIdentifier) ?? .standard
+        #if POWERMESH_LOCAL_ONLY
+        return .standard
+        #else
+        return UserDefaults(suiteName: appGroupIdentifier) ?? .standard
+        #endif
+    }
+}
+
+@MainActor
+enum WidgetRefreshBridge {
+    static var reloadAll: () -> Void = {}
+
+    static func reload() {
+        reloadAll()
     }
 }
 
@@ -34,7 +47,15 @@ actor SnapshotCache {
     func save(_ snapshots: [BatterySnapshot]) {
         let valid = snapshots.filter(\.isValidForSync)
         guard let data = try? encoder.encode(valid) else { return }
+
         defaults.set(data, forKey: PowerMeshStorage.snapshotsKey)
+        let language = UserDefaults.standard.string(forKey: AppLanguage.storageKey)
+            ?? AppLanguage.system.rawValue
+        defaults.set(language, forKey: AppLanguage.storageKey)
+
+        Task { @MainActor in
+            WidgetRefreshBridge.reload()
+        }
     }
 
     func remove(deviceID: String) {

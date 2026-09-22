@@ -1,4 +1,7 @@
 import SwiftUI
+#if canImport(WidgetKit)
+import WidgetKit
+#endif
 
 @main
 struct PowerMeshApp: App {
@@ -11,6 +14,14 @@ struct PowerMeshApp: App {
     #elseif os(macOS)
     @NSApplicationDelegateAdaptor(PowerMeshMacAppDelegate.self) private var appDelegate
     #endif
+
+    init() {
+        #if canImport(WidgetKit)
+        WidgetRefreshBridge.reloadAll = {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+        #endif
+    }
 
     private var selectedLanguage: AppLanguage {
         AppLanguage(rawValue: languagePreference) ?? .system

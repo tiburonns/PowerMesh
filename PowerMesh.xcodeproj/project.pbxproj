@@ -44,7 +44,17 @@
 		A30020000000000000000004 /* BackgroundRefreshCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000004 /* BackgroundRefreshCoordinator.swift */; };
 		A30020000000000000000005 /* AppLifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000005 /* AppLifecycle.swift */; };
 		A30020000000000000000006 /* DeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B30000000000000000000006 /* DeviceDetailView.swift */; };
+
+		A40000000000000000000001 /* PowerMeshWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40000000000000000000001 /* PowerMeshWidgets.swift */; };
+		A40000000000000000000002 /* BatteryOverviewWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40000000000000000000002 /* BatteryOverviewWidget.swift */; };
+		A40000000000000000000003 /* PowerMeshWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B40000000000000000000010 /* PowerMeshWidgets.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A40000000000000000000004 /* PowerMeshWidgets.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B40000000000000000000010 /* PowerMeshWidgets.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		G10000000000000000000001 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = E00000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = E30000000000000000000001; remoteInfo = PowerMeshWidgets; };
+		G20000000000000000000001 /* PBXContainerItemProxy */ = {isa = PBXContainerItemProxy; containerPortal = E00000000000000000000001 /* Project object */; proxyType = 1; remoteGlobalIDString = E30000000000000000000001; remoteInfo = PowerMeshWidgets; };
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		B10000000000000000000001 /* PowerMeshApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerMeshApp.swift; sourceTree = "<group>"; };
@@ -65,15 +75,21 @@
 		B10000000000000000000011 /* PowerMeshWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PowerMeshWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		C10000000000000000000004 /* Embed App Extensions */ = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (A40000000000000000000003 /* PowerMeshWidgets.appex in Embed App Extensions */, ); name = "Embed App Extensions"; runOnlyForDeploymentPostprocessing = 0; };
+		C20000000000000000000004 /* Embed App Extensions */ = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (A40000000000000000000004 /* PowerMeshWidgets.appex in Embed App Extensions */, ); name = "Embed App Extensions"; runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		C10000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 		C20000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		C30000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		D00000000000000000000001 = {
 			isa = PBXGroup;
-			children = (D10000000000000000000001 /* PowerMesh */, D10000000000000000000003 /* Products */);
+			children = (D10000000000000000000001 /* PowerMesh */, D40000000000000000000001 /* PowerMeshWidgets */, D10000000000000000000003 /* Products */);
 			sourceTree = "<group>";
 		};
 		D10000000000000000000001 /* PowerMesh */ = {
@@ -87,16 +103,17 @@
 		D11000000000000000000003 /* Services */ = {isa = PBXGroup; children = (B10000000000000000000003 /* BatteryDashboardStore.swift */, B10000000000000000000004 /* CloudBatteryStore.swift */, B10000000000000000000005 /* DeviceIdentity.swift */, B10000000000000000000006 /* LocalBatteryReader.swift */, B30000000000000000000002 /* PowerMeshStorage.swift */, B30000000000000000000003 /* BatteryNotificationService.swift */, B30000000000000000000004 /* BackgroundRefreshCoordinator.swift */); path = Services; sourceTree = "<group>"; };
 		D11000000000000000000004 /* Support */ = {isa = PBXGroup; children = (B10000000000000000000007 /* AppLanguage.swift */, B30000000000000000000005 /* AppLifecycle.swift */); path = Support; sourceTree = "<group>"; };
 		D11000000000000000000005 /* Views */ = {isa = PBXGroup; children = (B10000000000000000000008 /* BatteryCard.swift */, B10000000000000000000009 /* CompactMenuView.swift */, B1000000000000000000000A /* DashboardView.swift */, B1000000000000000000000B /* SettingsView.swift */, B30000000000000000000006 /* DeviceDetailView.swift */); path = Views; sourceTree = "<group>"; };
-		D10000000000000000000003 /* Products */ = {isa = PBXGroup; children = (B10000000000000000000010 /* PowerMesh.app */, B10000000000000000000011 /* PowerMeshWatch.app */); name = Products; sourceTree = "<group>"; };
+		D40000000000000000000001 /* PowerMeshWidgets */ = {isa = PBXGroup; children = (B40000000000000000000001 /* PowerMeshWidgets.swift */, B40000000000000000000002 /* BatteryOverviewWidget.swift */, B40000000000000000000003 /* PowerMeshWidgets.entitlements */); path = PowerMeshWidgets; sourceTree = "<group>"; };
+		D10000000000000000000003 /* Products */ = {isa = PBXGroup; children = (B10000000000000000000010 /* PowerMesh.app */, B10000000000000000000011 /* PowerMeshWatch.app */, B40000000000000000000010 /* PowerMeshWidgets.appex */); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
 		E10000000000000000000001 /* PowerMesh */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F10000000000000000000001;
-			buildPhases = (C10000000000000000000002 /* Sources */, C10000000000000000000001 /* Frameworks */, C10000000000000000000003 /* Resources */);
+			buildPhases = (C10000000000000000000002 /* Sources */, C10000000000000000000001 /* Frameworks */, C10000000000000000000003 /* Resources */, C10000000000000000000004 /* Embed App Extensions */);
 			buildRules = ();
-			dependencies = ();
+			dependencies = (H10000000000000000000001 /* PBXTargetDependency */);
 			name = PowerMesh;
 			productName = PowerMesh;
 			productReference = B10000000000000000000010 /* PowerMesh.app */;
@@ -105,20 +122,31 @@
 		E20000000000000000000001 /* PowerMeshWatch */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F20000000000000000000001;
-			buildPhases = (C20000000000000000000002 /* Sources */, C20000000000000000000001 /* Frameworks */, C20000000000000000000003 /* Resources */);
+			buildPhases = (C20000000000000000000002 /* Sources */, C20000000000000000000001 /* Frameworks */, C20000000000000000000003 /* Resources */, C20000000000000000000004 /* Embed App Extensions */);
 			buildRules = ();
-			dependencies = ();
+			dependencies = (H20000000000000000000001 /* PBXTargetDependency */);
 			name = PowerMeshWatch;
 			productName = PowerMeshWatch;
 			productReference = B10000000000000000000011 /* PowerMeshWatch.app */;
 			productType = "com.apple.product-type.application";
+		};
+		E30000000000000000000001 /* PowerMeshWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F30000000000000000000001;
+			buildPhases = (C30000000000000000000002 /* Sources */, C30000000000000000000001 /* Frameworks */, C30000000000000000000003 /* Resources */);
+			buildRules = ();
+			dependencies = ();
+			name = PowerMeshWidgets;
+			productName = PowerMeshWidgets;
+			productReference = B40000000000000000000010 /* PowerMeshWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		E00000000000000000000001 /* Project object */ = {
 			isa = PBXProject;
-			attributes = {BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2600; LastUpgradeCheck = 2600; TargetAttributes = {E10000000000000000000001 = {CreatedOnToolsVersion = 26.0; }; E20000000000000000000001 = {CreatedOnToolsVersion = 26.0; }; }; };
+			attributes = {BuildIndependentTargetsInParallel = 1; LastSwiftUpdateCheck = 2600; LastUpgradeCheck = 2600; TargetAttributes = {E10000000000000000000001 = {CreatedOnToolsVersion = 26.0; }; E20000000000000000000001 = {CreatedOnToolsVersion = 26.0; }; E30000000000000000000001 = {CreatedOnToolsVersion = 26.0; }; }; };
 			buildConfigurationList = F00000000000000000000001;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
@@ -128,18 +156,20 @@
 			productRefGroup = D10000000000000000000003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (E10000000000000000000001 /* PowerMesh */, E20000000000000000000001 /* PowerMeshWatch */);
+			targets = (E10000000000000000000001 /* PowerMesh */, E20000000000000000000001 /* PowerMeshWatch */, E30000000000000000000001 /* PowerMeshWidgets */);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		C10000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A1000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */); runOnlyForDeploymentPostprocessing = 0; };
 		C20000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A2000000000000000000000C /* PrivacyInfo.xcprivacy in Resources */); runOnlyForDeploymentPostprocessing = 0; };
+		C30000000000000000000003 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		C10000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001, A10000000000000000000002, A10000000000000000000003, A10000000000000000000004, A10000000000000000000005, A10000000000000000000006, A10000000000000000000007, A10000000000000000000008, A10000000000000000000009, A1000000000000000000000A, A1000000000000000000000B, A30010000000000000000001, A30010000000000000000002, A30010000000000000000003, A30010000000000000000004, A30010000000000000000005, A30010000000000000000006); runOnlyForDeploymentPostprocessing = 0; };
 		C20000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A20000000000000000000001, A20000000000000000000002, A20000000000000000000003, A20000000000000000000004, A20000000000000000000005, A20000000000000000000006, A20000000000000000000007, A20000000000000000000008, A20000000000000000000009, A2000000000000000000000A, A2000000000000000000000B, A30020000000000000000001, A30020000000000000000002, A30020000000000000000003, A30020000000000000000004, A30020000000000000000005, A30020000000000000000006); runOnlyForDeploymentPostprocessing = 0; };
+		C30000000000000000000002 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A40000000000000000000001, A40000000000000000000002); runOnlyForDeploymentPostprocessing = 0; };
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
@@ -151,6 +181,9 @@
 		F11000000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMesh.entitlements; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 6; DEVELOPMENT_TEAM = ""; ENABLE_HARDENED_RUNTIME = YES; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = PowerMesh; INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities"; IPHONEOS_DEPLOYMENT_TARGET = 17.0; MACOSX_DEPLOYMENT_TARGET = 14.0; MARKETING_VERSION = 0.1.5; PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh; PRODUCT_NAME = "$(TARGET_NAME)"; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx"; SUPPORTS_MACCATALYST = NO; SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO; SWIFT_EMIT_LOC_STRINGS = NO; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = Release; };
 		F21000000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMeshWatch.entitlements; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 6; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = PowerMesh; INFOPLIST_KEY_WKApplication = YES; INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.tiburonns.PowerMesh; INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES; INFOPLIST_KEY_WKWatchOnly = NO; MARKETING_VERSION = 0.1.5; PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.watchkitapp; PRODUCT_NAME = PowerMeshWatch; SDKROOT = watchos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "watchos watchsimulator"; SWIFT_EMIT_LOC_STRINGS = NO; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 4; WATCHOS_DEPLOYMENT_TARGET = 10.0; }; name = Debug; };
 		F21000000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_ENTITLEMENTS = PowerMesh/PowerMeshWatch.entitlements; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 6; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = PowerMesh; INFOPLIST_KEY_WKApplication = YES; INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.tiburonns.PowerMesh; INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = YES; INFOPLIST_KEY_WKWatchOnly = NO; MARKETING_VERSION = 0.1.5; PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.watchkitapp; PRODUCT_NAME = PowerMeshWatch; SDKROOT = watchos; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "watchos watchsimulator"; SWIFT_EMIT_LOC_STRINGS = NO; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = 4; WATCHOS_DEPLOYMENT_TARGET = 10.0; }; name = Release; };
+		F31000000000000000000001 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_ENTITLEMENTS = PowerMeshWidgets/PowerMeshWidgets.entitlements; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 6; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = PowerMesh; INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension"; IPHONEOS_DEPLOYMENT_TARGET = 17.0; MACOSX_DEPLOYMENT_TARGET = 14.0; MARKETING_VERSION = 0.1.5; PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.widgets; "PRODUCT_BUNDLE_IDENTIFIER[sdk=watchos*]" = com.tiburonns.PowerMesh.watchkitapp.widgets; "PRODUCT_BUNDLE_IDENTIFIER[sdk=watchsimulator*]" = com.tiburonns.PowerMesh.watchkitapp.widgets; PRODUCT_NAME = PowerMeshWidgets; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx watchos watchsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2,4"; WATCHOS_DEPLOYMENT_TARGET = 10.0; }; name = Debug; };
+		F31000000000000000000003 /* DebugLocal */ = {isa = XCBuildConfiguration; buildSettings = {APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 6; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = "PowerMesh Local"; INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension"; IPHONEOS_DEPLOYMENT_TARGET = 17.0; MACOSX_DEPLOYMENT_TARGET = 14.0; MARKETING_VERSION = 0.1.5; PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.local.widgets; PRODUCT_NAME = PowerMeshWidgets; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx"; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG POWERMESH_LOCAL_ONLY $(inherited)"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2"; }; name = DebugLocal; };
+		F31000000000000000000002 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_ENTITLEMENTS = PowerMeshWidgets/PowerMeshWidgets.entitlements; CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 6; DEVELOPMENT_TEAM = ""; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_KEY_CFBundleDisplayName = PowerMesh; INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension"; IPHONEOS_DEPLOYMENT_TARGET = 17.0; MACOSX_DEPLOYMENT_TARGET = 14.0; MARKETING_VERSION = 0.1.5; PRODUCT_BUNDLE_IDENTIFIER = com.tiburonns.PowerMesh.widgets; "PRODUCT_BUNDLE_IDENTIFIER[sdk=watchos*]" = com.tiburonns.PowerMesh.watchkitapp.widgets; "PRODUCT_BUNDLE_IDENTIFIER[sdk=watchsimulator*]" = com.tiburonns.PowerMesh.watchkitapp.widgets; PRODUCT_NAME = PowerMeshWidgets; SKIP_INSTALL = YES; SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx watchos watchsimulator"; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2,4"; WATCHOS_DEPLOYMENT_TARGET = 10.0; }; name = Release; };
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
