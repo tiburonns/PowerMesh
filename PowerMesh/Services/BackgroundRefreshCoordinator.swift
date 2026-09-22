@@ -13,9 +13,14 @@ enum BackgroundRefreshCoordinator {
         return
         #else
         guard !didRegister else { return }
-        didRegister = true
+        guard let permitted = Bundle.main.object(
+            forInfoDictionaryKey: "BGTaskSchedulerPermittedIdentifiers"
+        ) as? [String],
+        permitted.contains(identifier) else {
+            return
+        }
 
-        BGTaskScheduler.shared.register(
+        didRegister = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: identifier,
             using: nil
         ) { task in
@@ -41,9 +46,7 @@ enum BackgroundRefreshCoordinator {
         #if POWERMESH_LOCAL_ONLY
         return
         #else
-        guard Bundle.main.object(
-            forInfoDictionaryKey: "BGTaskSchedulerPermittedIdentifiers"
-        ) != nil else { return }
+        guard didRegister else { return }
 
         let request = BGAppRefreshTaskRequest(identifier: identifier)
         request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)

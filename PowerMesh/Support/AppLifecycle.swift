@@ -26,10 +26,10 @@ final class PowerMeshAppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        #if !POWERMESH_LOCAL_ONLY
         application.registerForRemoteNotifications()
-        Task { @MainActor in
-            BackgroundRefreshCoordinator.register()
-        }
+        #endif
+        BackgroundRefreshCoordinator.register()
         return true
     }
 
@@ -50,6 +50,12 @@ final class PowerMeshAppDelegate: NSObject, UIApplicationDelegate {
 import AppKit
 
 final class PowerMeshMacAppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        #if !POWERMESH_LOCAL_ONLY
+        NSApplication.shared.registerForRemoteNotifications()
+        #endif
+    }
+
     func application(
         _ application: NSApplication,
         didReceiveRemoteNotification userInfo: [String: Any]
