@@ -33,6 +33,7 @@ struct DeviceIdentity {
         return newID
     }
 
+    @MainActor
     static var name: String {
         get {
             if let custom = UserDefaults.standard.string(forKey: nameKey), !custom.isEmpty {
@@ -50,6 +51,7 @@ struct DeviceIdentity {
         }
     }
 
+    @MainActor
     static var defaultName: String {
         #if os(macOS)
         return Host.current().localizedName ?? "Mac"
