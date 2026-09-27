@@ -49,6 +49,26 @@ jobs:
             target: PowerMeshWatchWidgets
             configuration: Debug
             sdk: watchsimulator
+          - name: Release macOS
+            scheme: PowerMesh
+            configuration: Release
+            destination: generic/platform=macOS
+          - name: Release iOS
+            scheme: PowerMesh
+            configuration: Release
+            destination: generic/platform=iOS
+          - name: Release watchOS
+            scheme: PowerMeshWatch
+            configuration: Release
+            destination: generic/platform=watchOS
+          - name: Release Widget iOS
+            target: PowerMeshWidgets
+            configuration: Release
+            sdk: iphoneos
+          - name: Release Widget watchOS
+            target: PowerMeshWatchWidgets
+            configuration: Release
+            sdk: watchos
     name: ${{ matrix.name }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5

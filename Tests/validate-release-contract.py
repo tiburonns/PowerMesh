@@ -270,6 +270,12 @@ if "FileManager.default.ubiquityIdentityToken" in cloud_store:
     fail("CloudKit contract failed: availability must not depend on iCloud Drive")
 
 info = load(ROOT / "PowerMesh/Info.plist")
+if info.get("ITSAppUsesNonExemptEncryption") is not False:
+    fail("release contract failed: ITSAppUsesNonExemptEncryption must be false unless app encryption changes")
+if not (ROOT / "LICENSE").exists():
+    fail("repository contract failed: public repository requires LICENSE")
+if not (ROOT / "docs/TESTFLIGHT.md").exists():
+    fail("release contract failed: docs/TESTFLIGHT.md is missing")
 if info.get("BGTaskSchedulerPermittedIdentifiers") != ["com.tiburonns.PowerMesh.refresh"]:
     fail("background contract failed: BGTask identifier mismatch")
 modes = set(info.get("UIBackgroundModes", []))
@@ -388,11 +394,22 @@ workflow_source = (ROOT / ".github/workflows/build.yml").read_text(encoding="utf
 for target, sdk in [
     ("PowerMeshWidgets", "iphonesimulator"),
     ("PowerMeshWatchWidgets", "watchsimulator"),
+    ("PowerMeshWidgets", "iphoneos"),
+    ("PowerMeshWatchWidgets", "watchos"),
 ]:
     if f"target: {target}" not in workflow_source or f"sdk: {sdk}" not in workflow_source:
         fail(f"widget CI contract failed: {target} must build directly with {sdk}")
 if "-target" not in workflow_source:
     fail("widget CI contract failed: extension jobs must use xcodebuild -target")
+for release_name in [
+    "Release macOS",
+    "Release iOS",
+    "Release watchOS",
+    "Release Widget iOS",
+    "Release Widget watchOS",
+]:
+    if f"name: {release_name}" not in workflow_source:
+        fail(f"release CI contract failed: missing {release_name}")
 
 
 workflow_source = (ROOT / ".github/workflows/build.yml").read_text(encoding="utf-8")
