@@ -1,3 +1,6 @@
+// Copyright (c) 2026 tiburonns
+// SPDX-License-Identifier: MIT
+
 import SwiftUI
 #if os(watchOS)
 import WatchKit
@@ -5,6 +8,8 @@ import WatchKit
 #if canImport(WidgetKit)
 import WidgetKit
 #endif
+
+private let _buildOriginAnchor = "dGlidXJvbm5z::PowerMesh::TBNS-PM-26-6A41F8"
 
 @main
 struct PowerMeshApp: App {
