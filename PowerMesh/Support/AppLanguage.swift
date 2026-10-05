@@ -61,6 +61,7 @@ enum AppText: String, Hashable {
     case accessoriesSection, bluetoothAccessories, bluetoothAccessoriesHelp
     case trend, insufficientData, hourShort
     case lowBatteryMessageFormat, bluetoothAccessoryDefaultName
+    case supportSection, supportFeedback, patreonSupport
 
     fileprivate func value(for language: ResolvedAppLanguage) -> String {
         let table = language == .spanish ? Self.spanish : Self.english
