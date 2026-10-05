@@ -106,6 +106,12 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                Section(language.text(.supportSection)) {
+                    Link(
+                        language.text(.supportFeedback),
+                        destination: URL(string: "https://github.com/tiburonns/PowerMesh/issues/new?template=feedback.yml")!
+                    )
+                }
             }
             .navigationTitle(language.text(.settings))
             .toolbar {
