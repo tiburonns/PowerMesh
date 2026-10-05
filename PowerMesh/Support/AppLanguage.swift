@@ -126,7 +126,9 @@ enum AppText: String, Hashable {
         .insufficientData: "Collecting data",
         .hourShort: "h",
         .lowBatteryMessageFormat: "%@ has %d%% battery remaining.",
-        .bluetoothAccessoryDefaultName: "Bluetooth Accessory"
+        .bluetoothAccessoryDefaultName: "Bluetooth Accessory",
+        .supportSection: "Support & feedback",
+        .supportFeedback: "Questions, suggestions, bugs & feedback"
     ]
 
     private static let spanish: [AppText: String] = [
@@ -188,7 +190,9 @@ enum AppText: String, Hashable {
         .insufficientData: "Recopilando datos",
         .hourShort: "h",
         .lowBatteryMessageFormat: "%@ tiene %d%% de batería.",
-        .bluetoothAccessoryDefaultName: "Accesorio Bluetooth"
+        .bluetoothAccessoryDefaultName: "Accesorio Bluetooth",
+        .supportSection: "Soporte y feedback",
+        .supportFeedback: "Dudas, sugerencias, errores y feedback"
     ]
 }
 
