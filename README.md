@@ -73,6 +73,12 @@ PowerMesh uses public APIs only. The BLE provider supports devices that publicly
 
 See `docs/TESTING.md`.
 
+## Contact and feedback
+
+Questions, suggestions, bug reports, and general feedback can be sent from **Settings → Support** in PowerMesh or directly through [GitHub Issues](https://github.com/tiburonns/PowerMesh/issues). The app prepares the report and opens GitHub for review before anything is published.
+
+Do not include passwords, Apple account details, device identifiers, CloudKit data, or other sensitive information. Security vulnerabilities should use GitHub's private **Security → Report a vulnerability** flow.
+
 ## Privacy
 
 No custom PowerMesh account or external PowerMesh server is required. Synced records contain a random installation ID, visible device name, category, battery value/state, source, and timestamp. PowerMesh doesn't intentionally store Apple IDs, IMEI values, serial numbers, or private hardware identifiers.
@@ -140,6 +146,12 @@ PowerMesh usa solo APIs públicas. El proveedor BLE funciona con dispositivos qu
 7. Historial/tendencia prolongados y transiciones de vigencia.
 
 Consulta `docs/TESTING.es.md`.
+
+## Contacto y feedback
+
+Las dudas, sugerencias, reportes de errores y feedback general pueden enviarse desde **Configuración → Soporte** dentro de PowerMesh o directamente mediante [GitHub Issues](https://github.com/tiburonns/PowerMesh/issues). La app prepara el reporte y abre GitHub para revisarlo antes de publicar nada.
+
+No incluyas contraseñas, datos de tu cuenta Apple, identificadores de dispositivo, datos de CloudKit ni otra información sensible. Las vulnerabilidades de seguridad deben enviarse mediante el flujo privado **Security → Report a vulnerability** de GitHub.
 
 ## Privacidad
 
