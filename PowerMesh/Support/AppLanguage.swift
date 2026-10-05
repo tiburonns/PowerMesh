@@ -128,7 +128,8 @@ enum AppText: String, Hashable {
         .lowBatteryMessageFormat: "%@ has %d%% battery remaining.",
         .bluetoothAccessoryDefaultName: "Bluetooth Accessory",
         .supportSection: "Support & feedback",
-        .supportFeedback: "Questions, suggestions, bugs & feedback"
+        .supportFeedback: "Questions, suggestions, bugs & feedback",
+        .patreonSupport: "Support development on Patreon"
     ]
 
     private static let spanish: [AppText: String] = [
@@ -192,7 +193,8 @@ enum AppText: String, Hashable {
         .lowBatteryMessageFormat: "%@ tiene %d%% de batería.",
         .bluetoothAccessoryDefaultName: "Accesorio Bluetooth",
         .supportSection: "Soporte y feedback",
-        .supportFeedback: "Dudas, sugerencias, errores y feedback"
+        .supportFeedback: "Dudas, sugerencias, errores y feedback",
+        .patreonSupport: "Apoyar el desarrollo en Patreon"
     ]
 }
 
