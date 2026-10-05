@@ -16,6 +16,10 @@ struct SettingsView: View {
         store.snapshots.filter { $0.id != DeviceIdentity.id }
     }
 
+    private func t(_ english: String, _ spanish: String) -> String {
+        language.resolved == .spanish ? spanish : english
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -85,6 +89,22 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                Section(t("Support", "Soporte")) {
+                    NavigationLink {
+                        PowerMeshFeedbackView()
+                    } label: {
+                        Label(
+                            t("Questions, suggestions and feedback", "Dudas, sugerencias y feedback"),
+                            systemImage: "bubble.left.and.bubble.right"
+                        )
+                    }
+
+                    Link(
+                        t("Open GitHub Issues", "Abrir Issues de GitHub"),
+                        destination: URL(string: "https://github.com/tiburonns/PowerMesh/issues")!
+                    )
+                }
+
                 if !remoteDevices.isEmpty {
                     Section(language.text(.knownDevices)) {
                         ForEach(remoteDevices) { snapshot in
@@ -138,4 +158,112 @@ struct SettingsView: View {
         }
     }
 }
+
+private struct PowerMeshFeedbackView: View {
+    private enum Category: String, CaseIterable, Identifiable {
+        case question, suggestion, bug, feedback
+        var id: String { rawValue }
+
+        func title(language: AppLanguage) -> String {
+            let spanish = language.resolved == .spanish
+            switch self {
+            case .question: spanish ? "Duda" : "Question"
+            case .suggestion: spanish ? "Sugerencia" : "Suggestion"
+            case .bug: spanish ? "Error" : "Bug / Error"
+            case .feedback: spanish ? "Feedback general" : "General feedback"
+            }
+        }
+
+        var issuePrefix: String {
+            switch self {
+            case .question: "Question"
+            case .suggestion: "Suggestion"
+            case .bug: "Bug"
+            case .feedback: "Feedback"
+            }
+        }
+    }
+
+    @Environment(\.appLanguage) private var language
+    @Environment(\.openURL) private var openURL
+    @State private var category = Category.question
+    @State private var message = ""
+
+    private func t(_ english: String, _ spanish: String) -> String {
+        language.resolved == .spanish ? spanish : english
+    }
+
+    var body: some View {
+        Form {
+            Section(t("Type", "Tipo")) {
+                Picker(t("Category", "Categoría"), selection: $category) {
+                    ForEach(Category.allCases) { option in
+                        Text(option.title(language: language)).tag(option)
+                    }
+                }
+            }
+
+            Section(t("Message", "Mensaje")) {
+                TextEditor(text: $message)
+                    .frame(minHeight: 160)
+
+                Text(t(
+                    "Do not include passwords, Apple account details, device identifiers, or other sensitive information.",
+                    "No incluyas contraseñas, datos de tu cuenta Apple, identificadores de dispositivo ni otra información sensible."
+                ))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Button {
+                    submit()
+                } label: {
+                    Label(
+                        t("Open in GitHub", "Abrir en GitHub"),
+                        systemImage: "paperplane.fill"
+                    )
+                }
+                .disabled(message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            } footer: {
+                Text(t(
+                    "GitHub will open so you can review and publish the report yourself.",
+                    "GitHub se abrirá para que revises y publiques el reporte tú mismo."
+                ))
+            }
+        }
+        .navigationTitle(t("Feedback", "Feedback"))
+    }
+
+    private var appVersion: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "—"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
+        return "\(version) (\(build))"
+    }
+
+    private func submit() {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "github.com"
+        components.path = "/tiburonns/PowerMesh/issues/new"
+        components.queryItems = [
+            URLQueryItem(name: "title", value: "[\(category.issuePrefix)] "),
+            URLQueryItem(
+                name: "body",
+                value: """
+                \(message)
+
+                ---
+                App: PowerMesh
+                Version: \(appVersion)
+                """
+            )
+        ]
+
+        if let url = components.url {
+            openURL(url)
+        }
+    }
+}
+
 #endif
