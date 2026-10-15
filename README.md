@@ -77,6 +77,10 @@ See `docs/TESTING.md`.
 
 No custom PowerMesh account or external PowerMesh server is required. Synced records contain a random installation ID, visible device name, category, battery value/state, source, and timestamp. PowerMesh doesn't intentionally store Apple IDs, IMEI values, serial numbers, or private hardware identifiers.
 
+### Feedback
+
+Open **Settings → Bugs, comments & suggestions** to prepare a report. PowerMesh opens an email draft addressed to the developer; review and send it yourself. No report is sent before you confirm in your email app.
+
 ---
 
 # Español
@@ -144,3 +148,7 @@ Consulta `docs/TESTING.es.md`.
 ## Privacidad
 
 No requiere cuenta PowerMesh ni servidor externo propio. Los registros contienen ID aleatorio de instalación, nombre visible, categoría, nivel/estado de batería, fuente y timestamp. PowerMesh no almacena intencionalmente Apple ID, IMEI, números de serie ni identificadores privados de hardware.
+
+### Comentarios
+
+Abre **Ajustes → Errores, comentarios y sugerencias** para preparar un reporte. PowerMesh abre un borrador de correo dirigido al desarrollador; revísalo y envíalo tú. No se envía nada antes de confirmarlo en tu app de correo.

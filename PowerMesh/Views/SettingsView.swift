@@ -5,15 +5,31 @@ struct SettingsView: View {
     @EnvironmentObject private var store: BatteryDashboardStore
     @Environment(\.appLanguage) private var language
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     @AppStorage(AppLanguage.storageKey) private var languagePreference = AppLanguage.system.rawValue
     @AppStorage(BatteryAlertSettings.enabledKey) private var lowBatteryAlerts = false
     @AppStorage(BatteryAlertSettings.thresholdKey) private var lowBatteryThreshold = BatteryAlertSettings.defaultThreshold
     @AppStorage(AccessoryBatterySettings.enabledKey) private var bluetoothAccessories = false
     @State private var draftName = ""
     @State private var notificationPermissionDenied = false
+    @State private var feedbackCategory = "Bug"
+    @State private var feedbackMessage = ""
 
     private var remoteDevices: [BatterySnapshot] {
         store.snapshots.filter { $0.id != DeviceIdentity.id }
+    }
+
+    private func sendFeedback() {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = "adrianbarcenasm37@gmail.com"
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: "[PowerMesh] [\(feedbackCategory)]"),
+            URLQueryItem(name: "body", value: "\(feedbackMessage)\n\nPowerMesh \(version) (\(build))")
+        ]
+        if let url = components.url { openURL(url) }
     }
 
     var body: some View {
@@ -82,6 +98,19 @@ struct SettingsView: View {
                     }
                     Text(language.text(.backgroundSyncHelp))
                         .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section(language.text(.feedbackTitle)) {
+                    Picker(language.text(.feedbackCategory), selection: $feedbackCategory) {
+                        ForEach(["Bug", "Comment", "Suggestion", "Other"], id: \.self) { Text($0) }
+                    }
+                    TextField(language.text(.feedbackMessage), text: $feedbackMessage, axis: .vertical)
+                        .lineLimit(5...10)
+                    Button(language.text(.feedbackSend), action: sendFeedback)
+                        .disabled(feedbackMessage.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    Text(language.text(.feedbackEmailDraft))
+                        .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
 
