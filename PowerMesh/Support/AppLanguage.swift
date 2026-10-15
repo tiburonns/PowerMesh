@@ -61,6 +61,7 @@ enum AppText: String, Hashable {
     case accessoriesSection, bluetoothAccessories, bluetoothAccessoriesHelp
     case trend, insufficientData, hourShort
     case lowBatteryMessageFormat, bluetoothAccessoryDefaultName
+    case feedbackTitle, feedbackCategory, feedbackMessage, feedbackSend, feedbackEmailDraft
 
     fileprivate func value(for language: ResolvedAppLanguage) -> String {
         let table = language == .spanish ? Self.spanish : Self.english
@@ -126,7 +127,12 @@ enum AppText: String, Hashable {
         .insufficientData: "Collecting data",
         .hourShort: "h",
         .lowBatteryMessageFormat: "%@ has %d%% battery remaining.",
-        .bluetoothAccessoryDefaultName: "Bluetooth Accessory"
+        .bluetoothAccessoryDefaultName: "Bluetooth Accessory",
+        .feedbackTitle: "Bugs, comments & suggestions",
+        .feedbackCategory: "Category",
+        .feedbackMessage: "Message",
+        .feedbackSend: "Continue in email",
+        .feedbackEmailDraft: "Your email app opens a draft. Review and send it there."
     ]
 
     private static let spanish: [AppText: String] = [
@@ -188,7 +194,12 @@ enum AppText: String, Hashable {
         .insufficientData: "Recopilando datos",
         .hourShort: "h",
         .lowBatteryMessageFormat: "%@ tiene %d%% de batería.",
-        .bluetoothAccessoryDefaultName: "Accesorio Bluetooth"
+        .bluetoothAccessoryDefaultName: "Accesorio Bluetooth",
+        .feedbackTitle: "Errores, comentarios y sugerencias",
+        .feedbackCategory: "Categoría",
+        .feedbackMessage: "Mensaje",
+        .feedbackSend: "Continuar en correo",
+        .feedbackEmailDraft: "Tu app de correo abre un borrador. Revísalo y envíalo desde allí."
     ]
 }
 
